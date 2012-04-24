@@ -59,7 +59,7 @@ p {margin-left: 10pt}
 <h3>name</h3>
 <p>The name is descriptive text that will be used in making the report.</p>
 <h3>predicate</h3>
-<p>The predicate is a function that will return true of the claim holds. The predicate will do something with the system in question, perhaps examining its result examining the consistency of its data structures. If you are testing functions that do encoding and decoding, the predicate can assert things like</p>
+<p>The predicate is a function that will return true if the claim holds. The predicate will do something with the system in question, perhaps examining its result examining the consistency of its data structures. If you are testing functions that do encoding and decoding, the predicate can assert things like</p>
 <pre>return value === decode(encode(value))</pre>
 <p>You won't need to select the <code>value</code>. JSCheck will generate random values for you.</p>
 <h3>specifiers</h3>
