@@ -41,7 +41,7 @@ p {margin-left: 10pt}
 <body>
 <h1>JSCheck</h1>
 <p>Douglas Crockford<br>
-    2012-04-22
+    2012-04-24
 </p>
 <p>JSCheck is a testing tool for JavaScript. It was inspired by <a href="http://en.wikipedia.org/wiki/QuickCheck">QuickCheck</a>, a testing tool for Haskell developed by  Koen Claessen and John Hughes of Chalmers University of Technology.</p>
 <p>JSCheck is a specification-driven testing tool. From a description of the properties of a system, function, or object, it will generate random test cases attempting to prove those properties, and then report its findings. That can be especially effective in managing the evolution of a program because it can show the conformance of new code to old code. It also provides an interesting level of self-documentation, because the executable specifications it relies on can provide a good view of the workings of a program.</p>
@@ -54,17 +54,18 @@ p {margin-left: 10pt}
     <li>Optionally, a classifier function that takes the same arguments as the predicate</li>
 </ul>
 <p><code>JSC.claim</code> returns a claim function, which may be passed as an argument to the <code>JSC.check</code> function, which will randomly generate the cases that will attempt to reject the claim. You can set the number of cases generated per claim with the <code>JSC.reps</code> function.</p>
+<p>The source is available at  <a href="https://github.com/douglascrockford/JSCheck">https://github.com/douglascrockford/JSCheck</a>. This page is available at <a href="http://www.JSCheck.org/">http://www.JSCheck.org/</a>.</p>
 <h2>Making a Claim</h2>
 <p>To make a claim, you pass three or four components to <code>JSC.claim</code>, which will then return a function.</p>
 <h3>name</h3>
 <p>The name is descriptive text that will be used in making the report.</p>
 <h3>predicate</h3>
-<p>The predicate is a function that will return true of the claim holds. The predicate will do something with the system in question, perhaps examining its result examining the consistency of its data structures. If you are testing functions that do encoding and decoding, the predicate can assert things like</p>
+<p>The predicate is a function that will return true if the claim holds. The predicate will do something with the system in question, perhaps examining its result examining the consistency of its data structures. If you are testing functions that do encoding and decoding, the predicate can assert things like</p>
 <pre>return value === decode(encode(value))</pre>
 <p>You won't need to select the <code>value</code>. JSCheck will generate random values for you.</p>
 <h3>specifiers</h3>
 <p>An array of specifiers describe the types of the predicate's arguments. (From a procedural perspective, specifiers are generators, but JavaScript may get a new generator feature which is very different, so avoid confusion, we will take a declarative view.)</p>
-<p>JSCheck provides a small library of specifiers which you can use in your claim. For example, <code>JSC.integer(10)</code> declares that a parameter should an integer between 1 and 10. <code>JSC.one_of(['Curly, 'Larry', 'Moe'])</code> declares that a parameter can be one of three string. Some of the specifiers can be combined, so <code>JSC.array(JSC.integer(10), JSC.character('a', 'z'))</code> declares that a parameter can be an array of 1 to 10 lowercase letters.</p>
+<p>JSCheck provides a small library of specifiers which you can use in your claim. For example, <code>JSC.integer(10)</code> declares that a parameter should an integer between 1 and 10. <code>JSC.one_of(['Curly, 'Larry', 'Moe'])</code> declares that a parameter can be one of three strings. Some of the specifiers can be combined, so <code>JSC.array(JSC.integer(10), JSC.character('a', 'z'))</code> declares that a parameter can be an array of 1 to 10 lowercase letters.</p>
 <p>An array of specifiers can also contain constants (such as string, numbers, or objects), so you can pass anything you need to into the predicate. If you need to pass in a function, then you must to wrap the function value with the <code>JSC.literal</code> specifier.</p>
 <p>You can also create your own specifiers.</p>
 <h3>classifier</h3>
@@ -311,10 +312,26 @@ JSC.string(<i>number</i>, <i>value</i>)</h4>
 <h4>JSC.test(<i>name</i>, <i>predicate</i>, <i>specifiers</i>, <i>classifier</i>)</h4>
 <p>The <code>test</code> function calls the <code>check</code> function, passing the result of the <code>claim</code> function.</p>
 <h2>Using JSCheck</h2>
-<p>Since JSCheck performs a useful specification and description function as well as a testing function, it is recommended that claims be inserted into the relevant source code, and not in separate source files. <a href="https://github.com/douglascrockford/JSDev">JSDev</a> can make this easier to manage, so that claims can easily be removed from production code. All of the calls to JSC can be hidden in special comments, which are activated during development, and removed by minification in production.</p>
+<p>Since JSCheck performs a useful specification and description function as well as a testing function, it is recommended (but not required) that claims be inserted into the relevant source code, and not in separate source files. <a href="https://github.com/douglascrockford/JSDev">JSDev</a> can make this easy to manage, so that claims can  be removed automatically from production code. All of the calls to JSC can be hidden in special comments, which are activated during development, and removed by minification in production.</p>
 <h2>Writing specifiers</h2>
-<p>JSCheck provides a small set of specifier that can be combined in many ways. But for some purposes, you may need to create your own specifiers.</p>
-<p>It is easy to do. A specifier is a function that returns a function. The function that is returned will be stored in the specifiers array, and will be called for each value that needs to be generated. Its arguments might be other specifiers, so if an argument is a function, use the result of calling the function.</p>
+<p>JSCheck provides a small set of specifiers that can be combined in many ways. But for some purposes, you may need to create your own specifiers.</p>
+<p>It is easy to do. A specifier is a function that returns a function. </p>
+<pre>my_specifier = function specifier(param1, param2) {
+
+// per claim processing happens in here
+
+    return function generator() {
+
+// per case processing happen in here
+
+        return value;
+
+    };
+}</pre>
+<p>The generator function that is returned will be stored in the specifiers array, and will be called for each value that needs to be generated. It will have access to the specifier's parameters. Its arguments might be other specifiers, so if an argument is a function, use the result of calling the function.</p>
+<pre>intermediate_value = typeof param1 === 'function'
+    ? param1()
+    : param1;</pre>
 <h2>Demonstration</h2>
 <p>One difficulty in demonstrating testing systems is that the exposition of the system to be tested is usually significantly more complex than the testing tool being demonstrated. So in this case, we will be testing a trivial function. We will make an incorrect claim. JSCheck will help us to find the error in the claim. It might seem counter productive to demonstrate bad claim making, but it turns out that it is as important to get the claims right as it is to get the program right.</p>
 <p>We are going to test the <code>le</code> function.</p>

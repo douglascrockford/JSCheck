@@ -1,6 +1,6 @@
 jscheck.js
 Douglas Crockford
-2012-04-22
+2012-04-24
 
 Public Domain
 
@@ -19,4 +19,5 @@ program.
 
 All of JSCheck can be loaded from a small file called jscheck.js.
 
-Its usage is describe in jscheck.html.
+The source is available at https://github.com/douglascrockford/JSCheck.
+The documentation is available at http://www.JSCheck.org/.
