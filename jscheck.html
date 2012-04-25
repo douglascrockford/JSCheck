@@ -313,7 +313,7 @@ JSC.string(<i>number</i>, <i>value</i>)</h4>
 <h2>Using JSCheck</h2>
 <p>Since JSCheck performs a useful specification and description function as well as a testing function, it is recommended that claims be inserted into the relevant source code, and not in separate source files. <a href="https://github.com/douglascrockford/JSDev">JSDev</a> can make this easier to manage, so that claims can easily be removed from production code. All of the calls to JSC can be hidden in special comments, which are activated during development, and removed by minification in production.</p>
 <h2>Writing specifiers</h2>
-<p>JSCheck provides a small set of specifier that can be combined in many ways. But for some purposes, you may need to create your own specifiers.</p>
+<p>JSCheck provides a small set of specifiers that can be combined in many ways. But for some purposes, you may need to create your own specifiers.</p>
 <p>It is easy to do. A specifier is a function that returns a function. The function that is returned will be stored in the specifiers array, and will be called for each value that needs to be generated. Its arguments might be other specifiers, so if an argument is a function, use the result of calling the function.</p>
 <h2>Demonstration</h2>
 <p>One difficulty in demonstrating testing systems is that the exposition of the system to be tested is usually significantly more complex than the testing tool being demonstrated. So in this case, we will be testing a trivial function. We will make an incorrect claim. JSCheck will help us to find the error in the claim. It might seem counter productive to demonstrate bad claim making, but it turns out that it is as important to get the claims right as it is to get the program right.</p>
