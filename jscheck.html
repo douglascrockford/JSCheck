@@ -22,16 +22,16 @@ h3 {font-family: Arial, Helvetica, sans-serif; font-size: 16pt;
     text-align: left; padding-bottom: 0pt; border-color: black;}
 
 h4 {font-family: Monospace; font-size: 14pt;
-    font-weight: bold; 
+    font-weight: bold;
     text-align: left; padding-bottom: 0pt; }
-	
+
 i {
-	font-family: serif;
+    font-family: serif;
 }
-	
+
 pre {
-	font-family: Monospace;
-	margin-left: 1in;
+    font-family: Monospace;
+    margin-left: 1in;
 }
 
 p {margin-left: 10pt}
@@ -65,7 +65,7 @@ p {margin-left: 10pt}
 <p>You won't need to select the <code>value</code>. JSCheck will generate random values for you.</p>
 <h3>specifiers</h3>
 <p>An array of specifiers describe the types of the predicate's arguments. (From a procedural perspective, specifiers are generators, but JavaScript may get a new generator feature which is very different, so avoid confusion, we will take a declarative view.)</p>
-<p>JSCheck provides a small library of specifiers which you can use in your claim. For example, <code>JSC.integer(10)</code> declares that a parameter should an integer between 1 and 10. <code>JSC.one_of(['Curly, 'Larry', 'Moe'])</code> declares that a parameter can be one of three strings. Some of the specifiers can be combined, so <code>JSC.array(JSC.integer(10), JSC.character('a', 'z'))</code> declares that a parameter can be an array of 1 to 10 lowercase letters.</p>
+<p>JSCheck provides a small library of specifiers which you can use in your claim. For example, <code>JSC.integer(10)</code> declares that a parameter should an integer between 1 and 10. <code>JSC.one_of(['Curly', 'Larry', 'Moe'])</code> declares that a parameter can be one of three strings. Some of the specifiers can be combined, so <code>JSC.array(JSC.integer(10), JSC.character('a', 'z'))</code> declares that a parameter can be an array of 1 to 10 lowercase letters.</p>
 <p>An array of specifiers can also contain constants (such as string, numbers, or objects), so you can pass anything you need to into the predicate. If you need to pass in a function, then you must to wrap the function value with the <code>JSC.literal</code> specifier.</p>
 <p>You can also create your own specifiers.</p>
 <h3>classifier</h3>
@@ -197,7 +197,7 @@ JSC.reps(<i>repetitions</i>)</h4>
     JSC.object(<i>object</i>)    </h4>
 <p>The <code>object</code> specifier takes an <i>object</i> as a template. It will go through the enumerable own properties of  <i>object</i>, expanding the specifiers it contains. So, for example,</p>
     <pre>JSC.object({
-	 left: JSC.integer(640),
+     left: JSC.integer(640),
     top: JSC.integer(480),
     color: one_of(['black', 'white', 'red', 'blue', 'green', 'gray'])
 })</pre>
@@ -307,8 +307,7 @@ JSC.string(<i>number</i>, <i>value</i>)</h4>
 <p>It returns a function that can be processed by <code>JSC.check</code>.</p>
 <h4>
     JSC.group(<i>name</i>)</h4>
-<p>The 
-<code>group</code> function is used to specify a group <i>name</i> that will be attached to all new claims. This makes it easy to process a group of claims together.</p>
+<p>The <code>group</code> function is used to specify a group <i>name</i> that will be attached to all new claims. This makes it easy to process a group of claims together.</p>
 <h4>JSC.test(<i>name</i>, <i>predicate</i>, <i>specifiers</i>, <i>classifier</i>)</h4>
 <p>The <code>test</code> function calls the <code>check</code> function, passing the result of the <code>claim</code> function.</p>
 <h2>Using JSCheck</h2>
@@ -325,7 +324,6 @@ JSC.string(<i>number</i>, <i>value</i>)</h4>
 // per case processing happen in here
 
         return value;
-
     };
 }</pre>
 <p>The generator function that is returned will be stored in the specifiers array, and will be called for each value that needs to be generated. It will have access to the specifier's parameters. Its arguments might be other specifiers, so if an argument is a function, use the result of calling the function.</p>
@@ -336,7 +334,7 @@ JSC.string(<i>number</i>, <i>value</i>)</h4>
 <p>One difficulty in demonstrating testing systems is that the exposition of the system to be tested is usually significantly more complex than the testing tool being demonstrated. So in this case, we will be testing a trivial function. We will make an incorrect claim. JSCheck will help us to find the error in the claim. It might seem counter productive to demonstrate bad claim making, but it turns out that it is as important to get the claims right as it is to get the program right.</p>
 <p>We are going to test the <code>le</code> function.</p>
 <pre>function le(a, b) {
-    return a <= b;
+    return a &lt;= b;
 }</pre>
 <p>We will construct a claim. Our predicate simply returns the result of <code>le</code>. It takes two integers, one with a max of 10 and another with a max of 20. We will classify the cases by the relationship between the arguments.</p>
 <pre>
@@ -347,7 +345,7 @@ JSC.string(<i>number</i>, <i>value</i>)</h4>
         JSC.integer(10),
         JSC.integer(20)
     ], function (a, b) {
-        if (a < b) {
+        if (a &lt; b) {
             return 'lt';
         } else if (a === b) {
             return 'eq';
