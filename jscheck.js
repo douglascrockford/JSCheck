@@ -40,7 +40,7 @@ var JSC = (function () {
 // it is called to produce the return value.
 
             return typeof value === 'function'
-                ? value()
+                ? value.apply(null, Array.prototype.slice.call(arguments, 1))
                 : value;
         },
         integer = function (value) {
