@@ -40,7 +40,7 @@ var JSC = (function () {
 // it is called to produce the return value.
 
             return typeof value === 'function'
-                ? value()
+                ? value.apply(null, Array.prototype.slice.call(arguments, 1))
                 : value;
         },
         integer = function (value) {
@@ -349,7 +349,7 @@ var JSC = (function () {
                         values = resolve(value);
                         if (Array.isArray(keys)) {
                             keys.forEach(function (key, i) {
-                                i = i % keys.length;
+                                i = i % values.length;
                                 result[key] = resolve((Array.isArray(values)
                                     ? values[i]
                                     : value), i);
