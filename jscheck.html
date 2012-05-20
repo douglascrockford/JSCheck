@@ -2,7 +2,7 @@
 <head>
 <title>JSCheck</title>
 <style>
-body {background-color: linen}
+body {background-color: whitesmoke; padding: 5%}
 
 h1 {font-family: Arial, Helvetica, sans-serif; font-size: 18pt;
     font-weight: bolder; font-variant: small-caps; letter-spacing: 4pt;
@@ -43,10 +43,10 @@ p {margin-left: 10pt}
 <p>Douglas Crockford<br>
     2012-04-24
 </p>
-<p>JSCheck is a testing tool for JavaScript. It was inspired by <a href="http://en.wikipedia.org/wiki/QuickCheck">QuickCheck</a>, a testing tool for Haskell developed by  Koen Claessen and John Hughes of Chalmers University of Technology.</p>
-<p>JSCheck is a specification-driven testing tool. From a description of the properties of a system, function, or object, it will generate random test cases attempting to prove those properties, and then report its findings. That can be especially effective in managing the evolution of a program because it can show the conformance of new code to old code. It also provides an interesting level of self-documentation, because the executable specifications it relies on can provide a good view of the workings of a program.</p>
-<p>The JSCheck program is loaded from the <code>jscheck.js</code> file. It produces a single global variable, <code>JSC</code>, which contains the JSCheck object.</p>
-<p>JSCheck is concerned with the specification and checking of <i>claims</i>. (We use the term <i>claim</i> instead of <i>property</i> to avoid confusion with JavaScript's use of <i>property</i> to mean a member of an object.) To create a claim, call <code>JSC.claim</code>, passing in</p>
+<p><b>JSCheck</b> is a testing tool for JavaScript. It was inspired by <a href="http://en.wikipedia.org/wiki/QuickCheck">QuickCheck</a>, a testing tool for Haskell developed by  Koen Claessen and John Hughes of Chalmers University of Technology.</p>
+<p><b>JSCheck</b> is a specification-driven testing tool. From a description of the properties of a system, function, or object, it will generate random test cases attempting to prove those properties, and then report its findings. That can be especially effective in managing the evolution of a program because it can show the conformance of new code to old code. It also provides an interesting level of self-documentation, because the executable specifications it relies on can provide a good view of the workings of a program.</p>
+<p>The <b>JSCheck</b> program is loaded from the <code><b>JSCheck</b>.js</code> file. It produces a single global variable, <code>JSC</code>, which contains the <b>JSCheck</b> object.</p>
+<p><b>JSCheck</b> is concerned with the specification and checking of <i>claims</i>. (We use the term <i>claim</i> instead of <i>property</i> to avoid confusion with JavaScript's use of <i>property</i> to mean a member of an object.) To create a claim, call <code>JSC.claim</code>, passing in</p>
 <ul>
     <li>A name, which is a description of the claim</li>
     <li>A predicate, which is a function that returns <code>true</code> when the claim holds</li>
@@ -61,26 +61,30 @@ p {margin-left: 10pt}
 <p>The name is descriptive text that will be used in making the report.</p>
 <h3>predicate</h3>
 <p>The predicate is a function that will return true if the claim holds. The predicate will do something with the system in question, perhaps examining its result examining the consistency of its data structures. If you are testing functions that do encoding and decoding, the predicate can assert things like</p>
-<pre>return value === decode(encode(value))</pre>
-<p>You won't need to select the <code>value</code>. JSCheck will generate random values for you.</p>
+<pre>function predicate(verdict, value) {
+    return verdict(value === decode(encode(value)));
+}</pre>
+<p>You won't need to select the <code>value</code>. <b>JSCheck</b> can generate random values for you.</p>
+<p>The first parameter to the predicate will always be the <code>verdict</code> function. The predicate function uses the <code>verdict</code> function to announce the result of the test (<code>true</code> if the test succeed, and <code>false</code> if it failed). The verdict function makes it possible to conduct tests that might be completed in a different turn, such as tests involving event handling, network transactions, or asynchronous file requests.</p>
+<p>The remaining parameters must match the specifiers.</p>
 <h3>specifiers</h3>
 <p>An array of specifiers describe the types of the predicate's arguments. (From a procedural perspective, specifiers are generators, but JavaScript may get a new generator feature which is very different, so avoid confusion, we will take a declarative view.)</p>
-<p>JSCheck provides a small library of specifiers which you can use in your claim. For example, <code>JSC.integer(10)</code> declares that a parameter should an integer between 1 and 10. <code>JSC.one_of(['Curly', 'Larry', 'Moe'])</code> declares that a parameter can be one of three strings. Some of the specifiers can be combined, so <code>JSC.array(JSC.integer(10), JSC.character('a', 'z'))</code> declares that a parameter can be an array of 1 to 10 lowercase letters.</p>
+<p><b>JSCheck</b> provides a small library of specifiers which you can use in your claim. For example, <code>JSC.integer(10)</code> declares that a parameter should an integer between 1 and 10. <code>JSC.one_of(['Curly', 'Larry', 'Moe'])</code> declares that a parameter can be one of three strings. Some of the specifiers can be combined, so <code>JSC.array(JSC.integer(10), JSC.character('a', 'z'))</code> declares that a parameter can be an array of 1 to 10 lowercase letters.</p>
 <p>An array of specifiers can also contain constants (such as string, numbers, or objects), so you can pass anything you need to into the predicate. If you need to pass in a function, then you must to wrap the function value with the <code>JSC.literal</code> specifier.</p>
 <p>You can also create your own specifiers.</p>
 <h3>classifier</h3>
-<p>You can optionally pass a classifier function as part of the claim. The classifier will receive the same arguments as the predicate. A classifier can do two things:</p>
+<p>You can optionally pass a classifier function as part of the claim. The classifier will receive the same arguments as the predicate (excluding the <code>verdict</code>). A classifier can do two things:</p>
 <ol>
     <li>It can examine the arguments, and return a string which classifies the case. The string is descriptive. The report can include how many of the cases belong to each classification. This can be used to identify the classes that are trivial or problematic, or to help analyze the results.</li>
-    <li>Since the cases are being generated randomly,  some cases might not be meaningful or useful. The classifier can have a case rejected by returning <code>false</code>. JSCheck will attempt to generate another case to replace it. It is recommended that the classifier reject fewer than 90% of the cases. If you accepting less than 10% of the potential cases, then you should probably reformulate your claim.</li>
+    <li>Since the cases are being generated randomly,  some cases might not be meaningful or useful. The classifier can have a case rejected by returning <code>false</code>. <b>JSCheck</b> will attempt to generate another case to replace it. It is recommended that the classifier reject fewer than 90% of the cases. If you accepting less than 10% of the potential cases, then you should probably reformulate your claim.</li>
 </ol>
-<h2>The JSCheck functions</h2>
-<p>The JSCheck object contains several functions.</p>
+<h2>The <b>JSCheck</b> functions</h2>
+<p>The <b>JSCheck</b> object contains several functions.</p>
 <h3>Configuration:</h3>
-<p>The configuration functions set up the JSCheck object.</p>
+<p>The configuration functions set up the <b>JSCheck</b> object.</p>
 <h4>JSC.clear()</h4>
-<p>The <code>clear</code> function reinitializes the JSCheck object, discarding its collection of claims and groups.</p>
-<p>It returns the JSCheck object.</p>
+<p>The <code>clear</code> function reinitializes the <b>JSCheck</b> object, discarding its collection of claims and groups.</p>
+<p>It returns the <b>JSCheck</b> object.</p>
 <h4>
 JSC.detail(<i>level</i>)</h4>
 <p>By setting the <i>level</i> of detail to a particular number, you can determine how much information is included in the report. The report will be delivered to the function designated with <code>JSC.on_report</code>. The default is 3.</p>
@@ -91,9 +95,9 @@ JSC.detail(<i>level</i>)</h4>
     <li> <i>qualification</i>: The qualification summaries will be reported (default)</li>
     <li> <i>verbose</i>: All cases will be reported</li>
 </ol>
-<p>It returns the JSCheck object.</p>
+<p>It returns the <b>JSCheck</b> object.</p>
 <h4>JSC.on_fail(<i>function(object)</i>)</h4>
-<p>The <code>on_fail</code> function allows the registration of a callback <i>function</i> that will be given an object for each failed case. This can be used to trigger a throw to cancel further tests or to begin deeper processing. The callback will be passed an object containing these properties:</p>
+<p>The <code>on_fail</code> function allows the registration of a callback <i>function</i> that will be given an object for each failed case. This can be used to  begin deeper processing. The callback will be passed an object containing these properties:</p>
 <ul>
     <li><code>args</code>: The array of arguments of the case.</li>
     <li><code>claim</code>: The claim function.</li>
@@ -106,13 +110,30 @@ JSC.detail(<i>level</i>)</h4>
     </li>
     <li><code>name</code>: The name of the claim.<br>
     </li>
-    <li><code>pass</code>: The result value of the claim. It would have been true if it had succeeded.</li>
+    <li><code>pass</code>: <code>false</code>.</li>
     <li><code>predicate</code>: The predicate function.</li>
     <li><code>signature</code>: The signature array.</li>
 </ul>
-<p>It returns the JSCheck object.</p>
-<h4>
-JSC.on_pass(<i>function(object)</i>)</h4>
+<p>It returns the <b>JSCheck</b> object.</p>
+<h4>JSC.on_lost(function(object))</h4>
+<p>The on_lost function allows the registration of a callback function that will be given an object for each lost case. A case is considered lost if the predicate did not return a boolean verdict. The callback will be passed an object containing these properties:</p>
+<ul>
+    <li><code>args</code>: The array of arguments of the case.</li>
+    <li><code>claim</code>: The claim function.</li>
+    <li><code>classifier</code>: The classifier function.</li>
+    <li><code>classification</code>: The classification string of the case, if there is one.<br>
+    </li>
+    <li><code>exception</code>: The exception object that was thrown by the predicate, if there was one.<br>
+    </li>
+    <li><code>group</code>: The claim group name, if there is one.<br>
+    </li>
+    <li><code>name</code>: The name of the claim.<br>
+    </li>
+    <li><code>pass</code>: <code>undefined</code>.</li>
+    <li><code>predicate</code>: The predicate function.</li>
+    <li><code>signature</code>: The signature array.</li>
+</ul>
+<h4>JSC.on_pass(<i>function(object)</i>)</h4>
 <p>The <code>on_fail</code> function allows the registration of a callback <i>function</i> that will be given an object for each passing case. This can be used to trigger further tests or to begin deeper processing or reporting. The callback will be passed an object containing these properties:</p>
 <ul>
     <li><code>args</code>: The array of arguments of the case.</li>
@@ -130,14 +151,21 @@ JSC.on_pass(<i>function(object)</i>)</h4>
     <li><code>predicate</code>: The predicate function.</li>
     <li><code>signature</code>: The signature array.</li>
 </ul>
-<p>It returns the JSCheck object.</p>
+<p>It returns the <b>JSCheck</b> object.</p>
 <h4>JSC.on_report(<i>function(string)</i>)</h4>
 <p>The <code>on_report</code> function allows the registration of a callback function that will be given a string containing the results for each claim. The callback could route the report to a console or a log or <code>alert</code>. The level of detail is set with <code>JSC.detail</code>.</p>
-<p>It returns the JSCheck object.</p>
+<p>It returns the <b>JSCheck</b> object.</p>
+<h4>JSC.on_result(<i>function(object)</i>)</h4>
+<p>The on_result function allows the registration of a callback function that will be given an object summarizing the test. The callback will be passed an object containing these properties:</p>
+<ul>
+    <li><code>pass:</code> The number of cases that passed</li>
+    <li><code>fail:</code> The number of cases that failed</li>
+    <li><code>lost:</code> The number of cases that did not return a verdict.</li>
+</ul>
 <h4>
 JSC.reps(<i>repetitions</i>)</h4>
 <p>The <code>reps</code> function allows setting the number of repetitions per claim. The default is 100. </p>
-<p>It returns the JSCheck object.</p>
+<p>It returns the <b>JSCheck</b> object.</p>
 <h3>Specifiers:</h3>
 <p>A specifier is a function that returns a function that can generate values of a particular type. The specifiers are used in building the array of specifiers that is used to construct a claim.</p>
 <h4>
@@ -197,7 +225,7 @@ JSC.reps(<i>repetitions</i>)</h4>
     JSC.object(<i>object</i>)    </h4>
 <p>The <code>object</code> specifier takes an <i>object</i> as a template. It will go through the enumerable own properties of  <i>object</i>, expanding the specifiers it contains. So, for example,</p>
     <pre>JSC.object({
-     left: JSC.integer(640),
+    left: JSC.integer(640),
     top: JSC.integer(480),
     color: one_of(['black', 'white', 'red', 'blue', 'green', 'gray'])
 })</pre>
@@ -246,7 +274,7 @@ false
 ...</pre>
 <h4>
     JSC.one_of(<i>array</i>, <i>weights</i>)</h4>
-<p>The one_of specifier takes an <i>array</i> of specifiers and an array of <i>weights</i>. The <i>weights</i> are used to adjust the probabilities. So for example,</p>
+<p>The <code>one_of</code> specifier takes an <i>array</i> of specifiers and an array of <i>weights</i>. The <i>weights</i> are used to adjust the probabilities. So for example,</p>
 <pre>JSC.one_of(
    [1,2,3,4,5,6,7,8,9,10],
    [1,2,3,4,5,6,7,8,9,10]
@@ -258,7 +286,16 @@ produces values like
 10
 ...</pre>
 <h4>
-    JSC.sequence(<i>array</i>)</h4>
+    JSC.one_of(<i>string</i>)</h4>
+<p>Takes a string of character, and selects one of the characters. So for example,</p>
+<pre>JSC.string(8, JSC.one_of(&quot;abcdefgABCDEFG_$&quot;))</pre>
+<p>produces values like</p>
+<pre>"cdgbdB_D"
+"$fGE_BAB"
+"gEFF_FAe"
+"AebGbAbd"
+...</pre>
+<h4>JSC.sequence(<i>array</i>)</h4>
 <p>The <code>sequence</code> specifier takes an <i>array</i> of values, and produces them in sequence, repeating the sequence as needed.</p>
 <h4>
     JSC.string(<i>value</i>)</h4>
@@ -282,38 +319,40 @@ JSC.string(<i>number</i>, <i>value</i>)</h4>
 ...</pre>
 <h3>Claim processing:</h3>
 <p>The <code>JSC.claim</code> function creates claims, and the <code>JSC.check</code> function generates the cases and produces the reports.</p>
+<h4>JSC.check(<i>milliseconds</i>)</h4>
+<p>Process all of the claims that have been construct since the beginning or the most recent call to <code>JSC.clear</code>. </p>
+<p>If the <i>milliseconds</i> are specified, that determines the  amount of time to wait before declaring that the unfinished cases are failures. The default is to wait forever.</p>
+<p>It returns the <b>JSCheck</b> object.</p>
 <h4>
-    JSC.check()</h4>
-<p>Process all of the claims that have been construct since the beginning or the most recent call to <code>JSC.clear</code>.</p>
-<p>It returns <code>true</code> if every case passes.</p>
-<h4>
-    JSC.check(<i>group</i>)</h4>
+    JSC.check(<i>group</i>, <i>milliseconds</i>)</h4>
 <p>Process all of the claims of a specific group.</p>
-<p>It returns <code>true</code> if every case passes.</p>
+<p> If the <i>milliseconds</i> are specified, that determines the  amount of time to wait before declaring that the unfinished cases are failures. The default is to wait forever.</p>
+<p>It returns the <b>JSCheck</b> object.</p>
 <h4>
-    JSC.check(<i>claim</i>)</h4>
+    JSC.check(<i>claim</i>, <i>milliseconds</i>)</h4>
 <p>Process the specific <i>claim</i> function.</p>
-<p>It returns <code>true</code> if every case passes.</p>
-<h4>
-    JSC.claim(<i>name</i>, <i>predicate</i>, <i>specifiers</i>)</h4>
+<p> If the <i>milliseconds</i> are specified, that determines the  amount of time to wait before declaring that the unfinished cases are failures. The default is to wait forever.</p>
+<p>It returns the <b>JSCheck</b> object.</p>
+<h4>JSC.claim(<i>name</i>, <i>predicate</i>, <i>specifiers</i>)</h4>
 <p>The <code>claim</code> function takes a <i>name</i>, a <i>predicate</i> function, and an array of <i>specifiers</i>.</p>
-<p>The <i>predicate</i> function should return <code>true</code> if a case passes. It will take a list of arguments that is generated by the array of <i>specifiers</i>. The array of <i>specifiers</i> looks like a type declaration for the <i>predicate</i> function.</p>
+<p>The <i>predicate</i> function should  <code>return verdict(true)</code> if a case passes, and <code>return verdict(false)</code> if the case fails. </p>
+<p>It will take a list of arguments that is generated from the array of <i>specifiers</i>. The array of <i>specifiers</i> looks like a type declaration for the <i>predicate</i> function. </p>
 <p>It returns a function that can be processed by <code>JSC.check</code>.</p>
 <h4>
     JSC.claim(<i>name</i>, <i>predicate</i>, <i>specifiers</i>, <i>classifier</i>)</h4>
 <p>The <code>claim</code> function takes a <i>name</i>, a <i>predicate</i> function, and an array of <i>specifiers</i>.</p>
-<p>The <i>predicate</i> function should return <code>true</code> if a case passes. It will take a list of arguments that is generated by the array of <i>specifiers</i>. The array of <i>specifiers</i> looks like a type declaration for the <i>predicate</i> function.</p>
-<p>The <i>classifier</i> function is called before the <i>predicate</i> function. It gets a chance to determine if the random values in its arguments will be a reasonable case. It can return <code>false</code> if the case should be thrown out and a new case generated to replace it. The <i>classifier</i> function can also return a descriptive string that describes the case. These can be counted and displayed in the report.</p>
+<p>The <i>predicate</i> function should <code>return verdict(true)</code> if a case passes, and <code>return verdict(false)</code> if the case fails. It will take a list of arguments that is generated by the array of <i>specifiers</i>. The array of <i>specifiers</i> looks like a type declaration for the <i>predicate</i> function.</p>
+<p>The <i>classifier</i> function is called before each call of the <i>predicate</i> function. It gets a chance to determine if the random values in its arguments will be a reasonable case. It can return <code>false</code> if the case should be thrown out and a new case generated to replace it. The <i>classifier</i> function can also return a descriptive string that describes the case. These can be counted and displayed in the report.</p>
 <p>It returns a function that can be processed by <code>JSC.check</code>.</p>
 <h4>
     JSC.group(<i>name</i>)</h4>
 <p>The <code>group</code> function is used to specify a group <i>name</i> that will be attached to all new claims. This makes it easy to process a group of claims together.</p>
 <h4>JSC.test(<i>name</i>, <i>predicate</i>, <i>specifiers</i>, <i>classifier</i>)</h4>
 <p>The <code>test</code> function calls the <code>check</code> function, passing the result of the <code>claim</code> function.</p>
-<h2>Using JSCheck</h2>
-<p>Since JSCheck performs a useful specification and description function as well as a testing function, it is recommended (but not required) that claims be inserted into the relevant source code, and not in separate source files. <a href="https://github.com/douglascrockford/JSDev">JSDev</a> can make this easy to manage, so that claims can  be removed automatically from production code. All of the calls to JSC can be hidden in special comments, which are activated during development, and removed by minification in production.</p>
+<h2>Using <b>JSCheck</b></h2>
+<p>Since <b>JSCheck</b> performs a useful specification and description function as well as a testing function, it is recommended (but not required) that claims be inserted into the relevant source code, and not in separate source files. <a href="https://github.com/douglascrockford/JSDev">JSDev</a> can make this easy to manage, so that claims can  be removed automatically from production code. All of the calls to JSC can be hidden in special comments, which are activated during development, and removed by minification in production.</p>
 <h2>Writing specifiers</h2>
-<p>JSCheck provides a small set of specifiers that can be combined in many ways. But for some purposes, you may need to create your own specifiers.</p>
+<p><b>JSCheck</b> provides a small set of specifiers that can be combined in many ways. For some purposes, you may need to create your own specifiers.</p>
 <p>It is easy to do. A specifier is a function that returns a function. </p>
 <pre>my_specifier = function specifier(param1, param2) {
 
@@ -331,29 +370,27 @@ JSC.string(<i>number</i>, <i>value</i>)</h4>
     ? param1()
     : param1;</pre>
 <h2>Demonstration</h2>
-<p>One difficulty in demonstrating testing systems is that the exposition of the system to be tested is usually significantly more complex than the testing tool being demonstrated. So in this case, we will be testing a trivial function. We will make an incorrect claim. JSCheck will help us to find the error in the claim. It might seem counter productive to demonstrate bad claim making, but it turns out that it is as important to get the claims right as it is to get the program right.</p>
+<p>One difficulty in demonstrating testing systems is that the exposition of the system to be tested is usually significantly more complex than the testing tool being demonstrated. So in this case, we will be testing a trivial function. We will make an incorrect claim. <b>JSCheck</b> will help us to find the error in the claim. It might seem counter productive to demonstrate bad claim making, but it turns out that it is as important to get the claims right as it is to get the program right.</p>
 <p>We are going to test the <code>le</code> function.</p>
 <pre>function le(a, b) {
     return a &lt;= b;
 }</pre>
 <p>We will construct a claim. Our predicate simply returns the result of <code>le</code>. It takes two integers, one with a max of 10 and another with a max of 20. We will classify the cases by the relationship between the arguments.</p>
 <pre>
-/*check
-    JSC.test("Less than", function (a, b) {
-        return le(a, b);
-    }, [
-        JSC.integer(10),
-        JSC.integer(20)
-    ], function (a, b) {
-        if (a &lt; b) {
-            return 'lt';
-        } else if (a === b) {
-            return 'eq';
-        } else {
-            return 'gt';
-        }
-    });
-*/</pre>
+JSC.test("Less than", function (verdict, a, b) {
+    return verdict(le(a, b));
+}, [
+    JSC.integer(10),
+    JSC.integer(20)
+], function (a, b) {
+    if (a &lt; b) {
+        return 'lt';
+    } else if (a === b) {
+        return 'eq';
+    } else {
+        return 'gt';
+    }
+});</pre>
 
 <p>But when we check the claim, many cases fail. The summary of the specifiers tells the story: </p>
 <pre>eq pass 7

@@ -1,17 +1,21 @@
 // jscheck.js
 // Douglas Crockford
-// 2012-04-22
+// 2012-05-19
 
 // Public Domain
 
+/*global clearTimeout, setTimeout*/
+
 /*properties
-    apply, args, array, boolean, charAt, charCodeAt, character, check, claim,
-    classification, classifier, clear, detail, exception, floor, forEach,
-    fromCharCode, group, integer, isArray, join, keys, length, literal, map,
-    name, number, object, on_fail, on_pass, on_report, one_of, pass, predicate,
-    push, random, reduce, replace, reps, sequence, signature, sort, string,
-    stringify
+    apply, args, array, boolean, call, charAt, charCodeAt, character, check,
+    claim, classification, classifier, clear, concat, detail, exception, fail,
+    floor, forEach, fromCharCode, group, integer, isArray, join, keys, length,
+    literal, lost, map, name, number, object, on_fail, on_lost, on_pass,
+    on_report, on_result, one_of, pass, predicate, prototype, push, random,
+    reduce, replace, reps, resolve, sequence, serial, signature, slice, sort,
+    string, stringify, test, verdict
 */
+
 
 var JSC = (function () {
     'use strict';
@@ -21,9 +25,13 @@ var JSC = (function () {
         group,          // The collection of named groups of claims
         now_group,      // The current group
         on_fail,        // The function that receives the fail cases
+        on_lost,        // The function that receives the lost cases
         on_pass,        // The function that receives the pass cases
         on_report,      // The function that receives the reportage
+        on_result,      // The function that receives the summary
+        slice = Array.prototype.slice,
         reps = 100,     // The number of cases to be tried per claim
+        unique,         // Case serial number
         integer_sq_2 = 9,
         integer_sqrt = 1,
         integer_prime = 1,
@@ -31,16 +39,13 @@ var JSC = (function () {
         add = function (a, b) {
             return a + b;
         },
-        and = function (a, b) {
-            return a && b;
-        },
         resolve = function (value) {
 
 // The resolve function takes a value. If that value is a function, then
 // it is called to produce the return value.
 
             return typeof value === 'function'
-                ? value()
+                ? value.apply(null, slice.call(arguments, 1))
                 : value;
         },
         integer = function (value) {
@@ -50,6 +55,13 @@ var JSC = (function () {
                 : typeof value === 'string'
                 ? value.charCodeAt(0)
                 : undefined;
+        },
+        go = function (func, value) {
+            if (value) {
+                try {
+                    func(value);
+                } catch (ignore) {}
+            }
         },
 
         jscheck = {
@@ -97,7 +109,7 @@ var JSC = (function () {
                     return String.fromCharCode(ji());
                 };
             },
-            check: function (claim) {
+            check: function (claim, ms) {
 
 // The check function optionally takes a claim function or the name of a group.
 // The default is to check all claims.
@@ -105,90 +117,206 @@ var JSC = (function () {
 // Report texts may be sent to the function registered with on_report, depending
 // on the level of detail.
 
-                var array;
+                var array,
+                    cases = {},
+                    complete = false,
+                    nr_pending = 0,
+                    serials = [],
+                    timeout_id;
+
+                function generate_report() {
+                    var class_fail,
+                        class_pass,
+                        class_lost,
+                        i = 0,
+                        lines = '',
+                        next_case,
+                        now_claim,
+                        nr_class = 0,
+                        nr_fail,
+                        nr_lost,
+                        nr_pass,
+                        report = '',
+                        the_case,
+                        the_class,
+                        total_fail = 0,
+                        total_lost = 0,
+                        total_pass = 0;
+
+                    function generate_line(type, level) {
+                        if (detail >= level) {
+                            lines += " " + type + " [" + the_case.serial + "] " +
+                                the_case.classification + (
+                                    JSON.stringify(the_case.args)
+                                        .replace(/^\[/, '(')
+                                        .replace(/\]$/, ')')
+                                ) + '\n';
+                        }
+                    }
+
+
+                    function generate_class(key) {
+                        if (detail >= 3 || class_fail[key] || class_lost[key]) {
+                            report += ' ' + key + " pass " + class_pass[key] +
+                                (class_fail[key] ? " fail " + class_fail[key] : '') +
+                                (class_lost[key] ? " lost " + class_lost[key] : '') + '\n';
+                        }
+                    }
+
+
+                    if (cases) {
+                        if (timeout_id) {
+                            clearTimeout(timeout_id);
+                        }
+                        for (;;) {
+                            next_case = cases[serials[i]];
+                            if (!next_case || (next_case.claim !== now_claim)) {
+                                if (now_claim) {
+                                    if (detail >= 1) {
+                                        report += the_case.name + ": " +
+                                            (nr_class ? nr_class + " classifications, " : "") +
+                                            (nr_pass + nr_fail + nr_lost) +
+                                            " cases tested, " + nr_pass + " pass" +
+                                            (nr_fail ? ", " + nr_fail + " fail" : "") +
+                                            (nr_lost ? ", " + nr_lost + " lost" : "") +
+                                            '\n';
+                                        if (nr_class && detail >= 2) {
+                                            Object.keys(class_pass).sort().forEach(generate_class);
+                                            report += lines;
+                                        }
+                                    }
+                                    total_fail += nr_fail;
+                                    total_lost += nr_lost;
+                                    total_pass += nr_pass;
+                                }
+                                if (!next_case) {
+                                    break;
+                                }
+                                nr_fail = nr_lost = nr_pass = 0;
+                                class_pass = {};
+                                class_fail = {};
+                                class_lost = {};
+                                lines = '';
+                            }
+                            the_case = next_case;
+                            i += 1;
+                            now_claim = the_case.claim;
+                            the_class = the_case.classification;
+                            if (the_class && typeof class_pass[the_class] !== 'number') {
+                                class_pass[the_class] = 0;
+                                class_fail[the_class] = 0;
+                                class_lost[the_class] = 0;
+                                nr_class += 1;
+                            }
+                            switch (the_case.pass) {
+                            case true:
+                                if (the_class) {
+                                    class_pass[the_class] += 1;
+                                }
+                                if (detail >= 4) {
+                                    generate_line("Pass", 4);
+                                }
+                                nr_pass += 1;
+                                break;
+                            case false:
+                                if (the_class) {
+                                    class_fail[the_class] += 1;
+                                }
+                                generate_line("FAIL", 2);
+                                nr_fail += 1;
+                                break;
+                            default:
+                                if (the_class) {
+                                    class_lost[the_class] += 1;
+                                }
+                                generate_line("LOST", 2);
+                                nr_lost += 1;
+                                go(on_lost, the_case);
+                            }
+                        }
+                        if (typeof claim === 'string' && detail >= 1) {
+                            report = "Group " + claim + '\n\n' + report;
+                        }
+                        report += "\nTotal pass " + total_pass +
+                            (total_fail ? ", fail " + total_fail : "") +
+                            (total_lost ? ", lost " + total_lost : "") + '\n';
+                        go(on_result, {
+                            pass: total_pass,
+                            fail: total_fail,
+                            lost: total_lost
+                        });
+                        go(on_report, report);
+                    }
+                    cases = null;
+                }
+
+
+                function register(serial, value) {
+                    var the_case;
+                    if (cases) {
+                        the_case = cases[serial];
+                        if (the_case === undefined) {
+                            cases[serial] = value;
+                            serials.push(serial);
+                            nr_pending += 1;
+                        } else {
+                            if (the_case.pass === undefined) {
+                                if (value === true) {
+                                    the_case.pass = true;
+                                    go(on_pass, the_case);
+                                } else if (value === false) {
+                                    the_case.pass = false;
+                                    go(on_fail, the_case);
+                                } else {
+                                    the_case.exception = value;
+                                }
+                                nr_pending -= 1;
+                                if (nr_pending <= 0 && complete) {
+                                    return generate_report();
+                                }
+                            } else {
+                                throw the_case;
+                            }
+                        }
+                    }
+                    return value;
+                }
+
+
                 if (typeof claim === 'function') {
                     array = [claim];
                 } else if (typeof claim === 'string') {
                     array = group[claim];
                     if (!Array.isArray(array)) {
-                        if (detail >= 1 && typeof on_report === 'function') {
-                            on_report("Bad group " + claim + '\n');
-                        }
-                        return false;
-                    }
-                    if (detail >= 1 && typeof on_report === 'function') {
-                        on_report("Group " + claim + '\n');
+                        throw new Error("Bad group " + claim);
                     }
                 } else {
                     array = all;
                 }
-                return array.map(function (claim) {
+                unique = 0;
+                array.forEach(function (claim) {
                     var at_most = reps * 10,
-                        bad = {},
-                        bit = true,
                         counter = 0,
-                        i,
-                        ok,
-                        good = {},
-                        result,
-                        report = '',
-                        success = 0;
+                        i;
                     integer_sq_2 = 9;
                     integer_sqrt = 1;
                     integer_prime = 1;
 
 // Loop over the generation and testing of cases.
 
-                    for (i = 0; counter < reps && i < at_most; i += 1) {
-                        result = claim();
-                        if (result) {
-                            ok = result.pass === true;
-                            if (detail >= 4 || (!ok && detail >= 2)) {
-                                report += (ok ? " Pass" : " FAIL") +
-                                    ' [' + counter + '] ' +
-                                    result.classification + (
-                                        JSON.stringify(result.args)
-                                            .replace(/^\[/, '(')
-                                            .replace(/\]$/, ')')
-                                    ) + '\n';
-                            }
-                            if (typeof good[result.classification] !== 'number') {
-                                good[result.classification] = 0;
-                                bad[result.classification] = 0;
-                            }
-                            if (ok) {
-                                good[result.classification] += 1;
-                                success += 1;
-                                if (typeof on_pass === 'function') {
-                                    on_pass(result);
-                                }
-                            } else {
-                                bit = false;
-                                bad[result.classification] += 1;
-                                if (typeof on_fail === 'function') {
-                                    on_fail(result);
-                                }
-                            }
+                    for (counter = i = 0; counter < reps && i < at_most; i += 1) {
+                        if (claim(register)) {
                             counter += 1;
                         }
                     }
-                    if (detail >= 1) {
-                        report = result.name + ' ' + success + ' of ' +
-                            counter + '\n' + report;
-                    }
-                    if (detail >= 2) {
-                        Object.keys(good).sort().forEach(function (key) {
-                            if (detail >= 3 || bad[key]) {
-                                report += key + ' pass ' + good[key] +
-                                    (bad[key] ? ' fail ' + bad[key] : '') + '\n';
-                            }
-                        });
-                    }
-                    if (report && typeof on_report === 'function') {
-                        on_report(report);
-                    }
-                    return bit;
-                }).reduce(and, true);
+                });
+                complete = true;
+                if (nr_pending <= 0) {
+                    generate_report();
+                } else if (ms > 0) {
+                    timeout_id = setTimeout(generate_report, ms);
+                }
+                return jscheck;
             },
             claim: function (name, predicate, signature, classifier) {
 
@@ -208,49 +336,58 @@ var JSC = (function () {
 // If a group name has been set, then the claim will also be deposited
 // in the group.
 
-                var the_group = now_group,
-                    the_claim = function () {
-                        var args = signature.map(function (value) {
-                                return resolve(value);
-                            }),
-                            classification = '',
-                            exception,
-                            pass;
-                        if (typeof classifier === 'function') {
-                            classification = classifier.apply(args, args);
-                            if (typeof classification !== 'string') {
-                                return false;
-                            }
-                        }
-                        try {
-                            pass = predicate.apply(null, args);
-                        } catch (e) {
-                            exception = e;
-                            pass = false;
-                        }
-                        return {
-                            args: args,
-                            claim: the_claim,
-                            classification: classification,
-                            classifier: classifier,
-                            exception: exception,
-                            group: the_group,
-                            name: name,
-                            pass: pass,
-                            predicate: predicate,
-                            signature: signature
-                        };
-                    };
+                var grupo = now_group;
 
-                if (the_group) {
-                    if (!Array.isArray(group[the_group])) {
-                        group[the_group] = [the_claim];
+                function claim(register) {
+                    var args = signature.map(function (value) {
+                            return resolve(value);
+                        }),
+                        classification = '',
+                        serial,
+                        verdict;
+                    if (typeof classifier === 'function') {
+                        classification = classifier.apply(args, args);
+                        if (typeof classification !== 'string') {
+                            return false;
+                        }
+                    }
+                    unique += 1;
+                    serial = unique;
+                    verdict = function (result) {
+                        if (result === undefined) {
+                            result = null;
+                        }
+                        return register(serial, result);
+                    };
+                    register(serial, {
+                        args: args,
+                        claim: claim,
+                        classification: classification,
+                        classifier: classifier,
+                        group: grupo,
+                        name: name,
+                        predicate: predicate,
+                        signature: signature,
+                        serial: serial,
+                        verdict: verdict
+                    });
+                    try {
+                        predicate.apply(null, [verdict].concat(args));
+                    } catch (e) {
+                        verdict(typeof e === 'boolean' ? null : e);
+                    }
+                    return true;
+                }
+
+                if (grupo) {
+                    if (!Array.isArray(group[grupo])) {
+                        group[grupo] = [claim];
                     } else {
-                        group[the_group].push(the_claim);
+                        group[grupo].push(claim);
                     }
                 }
-                all.push(the_claim);
-                return the_claim;
+                all.push(claim);
+                return claim;
             },
             clear: function () {
                 all = [];
@@ -349,7 +486,7 @@ var JSC = (function () {
                         values = resolve(value);
                         if (Array.isArray(keys)) {
                             keys.forEach(function (key, i) {
-                                i = i % keys.length;
+                                i = i % values.length;
                                 result[key] = resolve((Array.isArray(values)
                                     ? values[i]
                                     : value), i);
@@ -410,6 +547,10 @@ var JSC = (function () {
                 on_fail = func;
                 return jscheck;
             },
+            on_lost: function (func) {
+                on_lost = func;
+                return jscheck;
+            },
             on_pass: function (func) {
                 on_pass = func;
                 return jscheck;
@@ -418,10 +559,15 @@ var JSC = (function () {
                 on_report = func;
                 return jscheck;
             },
+            on_result: function (func) {
+                on_result = func;
+                return jscheck;
+            },
             reps: function (number) {
                 reps = number;
                 return jscheck;
             },
+            resolve: resolve,
             sequence: function (array) {
                 var i = -1;
 
@@ -448,8 +594,8 @@ var JSC = (function () {
                     return ja().join('');
                 };
             },
-            test: function (name, predicate, signature, classifier) {
-                return JSC.check(JSC.claim(name, predicate, signature, classifier));
+            test: function (name, predicate, signature, classifier, ms) {
+                return JSC.check(JSC.claim(name, predicate, signature, classifier), ms);
             }
         };
     return jscheck.clear();
