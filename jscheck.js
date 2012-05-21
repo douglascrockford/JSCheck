@@ -23,18 +23,18 @@ var JSC = (function () {
     var all,            // The collection of all claims
         detail = 3,     // The current level of report detail
         group,          // The collection of named groups of claims
+        integer_prime = 1,
+        integer_sq_2 = 9,
+        integer_sqrt = 1,
         now_group,      // The current group
         on_fail,        // The function that receives the fail cases
         on_lost,        // The function that receives the lost cases
         on_pass,        // The function that receives the pass cases
         on_report,      // The function that receives the reportage
         on_result,      // The function that receives the summary
-        slice = Array.prototype.slice,
         reps = 100,     // The number of cases to be tried per claim
+        slice = Array.prototype.slice,
         unique,         // Case serial number
-        integer_sq_2 = 9,
-        integer_sqrt = 1,
-        integer_prime = 1,
 
         add = function (a, b) {
             return a + b;
