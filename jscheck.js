@@ -1,6 +1,6 @@
 // jscheck.js
 // Douglas Crockford
-// 2012-05-19
+// 2012-05-20
 
 // Public Domain
 
@@ -22,7 +22,7 @@ var JSC = (function () {
 
     var all,            // The collection of all claims
         detail = 3,     // The current level of report detail
-        group,          // The collection of named groups of claims
+        groups,          // The collection of named groups of claims
         integer_prime = 1,
         integer_sq_2 = 9,
         integer_sqrt = 1,
@@ -66,28 +66,27 @@ var JSC = (function () {
 
         jscheck = {
             array: function (dimension, value) {
-                if (Array.isArray(dimension)) {
-                    return function () {
+                return Array.isArray(dimension)
+                    ? function () {
                         return dimension.map(function (value) {
                             return resolve(value);
                         });
-                    };
-                }
-                return function () {
-                    var i,
-                        n = resolve(dimension),
-                        result = [];
-                    if (typeof n === 'number' && isFinite(n)) {
-                        for (i = 0; i < n; i += 1) {
-                            result.push(resolve(value, i));
-                        }
                     }
-                    return result;
-                };
+                    : function () {
+                        var i,
+                            n = resolve(dimension),
+                            result = [];
+                        if (typeof n === 'number' && isFinite(n)) {
+                            for (i = 0; i < n; i += 1) {
+                                result.push(resolve(value, i));
+                            }
+                        }
+                        return result;
+                    };
             },
             boolean: function (bias) {
 
-// A signature can contain a boolean specification. And optional bias parameter
+// A signature can contain a boolean specification. An optional bias parameter
 // can be provided. If the bias is 0.25, then approximately a quarter of the
 // booleans produced will be true.
 
@@ -112,10 +111,9 @@ var JSC = (function () {
             check: function (claim, ms) {
 
 // The check function optionally takes a claim function or the name of a group.
-// The default is to check all claims.
-// It returns a boolean which will be false if any case fails.
-// Report texts may be sent to the function registered with on_report, depending
-// on the level of detail.
+// The default is to check all claims. It returns the jscheck object.
+// The results will be provided to callback functions that are registered
+// with the on_* methods.
 
                 var array,
                     cases = {},
@@ -268,6 +266,7 @@ var JSC = (function () {
                                     the_case.pass = false;
                                     go(on_fail, the_case);
                                 } else {
+                                    the_case.pass = null;
                                     the_case.exception = value;
                                 }
                                 nr_pending -= 1;
@@ -286,7 +285,7 @@ var JSC = (function () {
                 if (typeof claim === 'function') {
                     array = [claim];
                 } else if (typeof claim === 'string') {
-                    array = group[claim];
+                    array = groups[claim];
                     if (!Array.isArray(array)) {
                         throw new Error("Bad group " + claim);
                     }
@@ -336,7 +335,7 @@ var JSC = (function () {
 // If a group name has been set, then the claim will also be deposited
 // in the group.
 
-                var grupo = now_group;
+                var group = now_group;
 
                 function claim(register) {
                     var args = signature.map(function (value) {
@@ -364,7 +363,7 @@ var JSC = (function () {
                         claim: claim,
                         classification: classification,
                         classifier: classifier,
-                        group: grupo,
+                        group: group,
                         name: name,
                         predicate: predicate,
                         signature: signature,
@@ -372,18 +371,18 @@ var JSC = (function () {
                         verdict: verdict
                     });
                     try {
-                        predicate.apply(null, [verdict].concat(args));
+                        predicate.apply(args, [verdict].concat(args));
                     } catch (e) {
                         verdict(typeof e === 'boolean' ? null : e);
                     }
                     return true;
                 }
 
-                if (grupo) {
-                    if (!Array.isArray(group[grupo])) {
-                        group[grupo] = [claim];
+                if (group) {
+                    if (!Array.isArray(groups[group])) {
+                        groups[group] = [claim];
                     } else {
-                        group[grupo].push(claim);
+                        groups[group].push(claim);
                     }
                 }
                 all.push(claim);
@@ -391,7 +390,7 @@ var JSC = (function () {
             },
             clear: function () {
                 all = [];
-                group = {};
+                groups = {};
                 now_group = '';
                 return jscheck;
             },
@@ -595,7 +594,13 @@ var JSC = (function () {
                 };
             },
             test: function (name, predicate, signature, classifier, ms) {
-                return JSC.check(JSC.claim(name, predicate, signature, classifier), ms);
+                var claim,
+                    group = now_group;
+                now_group = '';
+                claim = JSC.claim(name, predicate, signature, classifier);
+                now_group = group;
+                all.pop();
+                return JSC.check(claim, ms);
             }
         };
     return jscheck.clear();
