@@ -41,7 +41,7 @@ p {margin-left: 10pt}
 <body>
 <h1>JSCheck</h1>
 <p>Douglas Crockford<br>
-    2012-04-24
+    2012-05-21
 </p>
 <p><b>JSCheck</b> is a testing tool for JavaScript. It was inspired by <a href="http://en.wikipedia.org/wiki/QuickCheck">QuickCheck</a>, a testing tool for Haskell developed by  Koen Claessen and John Hughes of Chalmers University of Technology.</p>
 <p><b>JSCheck</b> is a specification-driven testing tool. From a description of the properties of a system, function, or object, it will generate random test cases attempting to prove those properties, and then report its findings. That can be especially effective in managing the evolution of a program because it can show the conformance of new code to old code. It also provides an interesting level of self-documentation, because the executable specifications it relies on can provide a good view of the workings of a program.</p>
@@ -57,9 +57,9 @@ p {margin-left: 10pt}
 <p>The source is available at  <a href="https://github.com/douglascrockford/JSCheck">https://github.com/douglascrockford/JSCheck</a>. This page is available at <a href="http://www.JSCheck.org/">http://www.JSCheck.org/</a>.</p>
 <h2>Making a Claim</h2>
 <p>To make a claim, you pass three or four components to <code>JSC.claim</code>, which will then return a function.</p>
-<h3>name</h3>
+<h4>name</h4>
 <p>The name is descriptive text that will be used in making the report.</p>
-<h3>predicate</h3>
+<h4>predicate</h4>
 <p>The predicate is a function that will return true if the claim holds. The predicate will do something with the system in question, perhaps examining its result or examining the consistency of its data structures. If you are testing functions that do encoding and decoding, the predicate can assert things like</p>
 <pre>function predicate(verdict, value) {
     return verdict(value === decode(encode(value)));
@@ -67,12 +67,12 @@ p {margin-left: 10pt}
 <p>You won't need to select the <code>value</code>. <b>JSCheck</b> can generate random values for you.</p>
 <p>The first parameter to the predicate will always be the <code>verdict</code> function. The predicate function uses the <code>verdict</code> function to announce the result of the case (<code>true</code> if the case succeed, and <code>false</code> if it failed). The <code>verdict</code> function makes it possible to conduct tests that might be completed in a different turn, such as tests involving event handling, network transactions, or asynchronous file requests.</p>
 <p>The remaining parameters must match the specifiers.</p>
-<h3>signature</h3>
+<h4>signature</h4>
 <p>The signature is an array of specifiers that describe the types of the predicate's arguments. (From a procedural perspective, specifiers are generators, but JavaScript may get a new generator feature which is very different, so avoid confusion, we will take a declarative view.)</p>
 <p><b>JSCheck</b> provides a small library of specifiers that you can use in your claim. For example, <code>JSC.integer(10)</code> declares that a parameter should an integer between 1 and 10. <code>JSC.one_of(['Curly', 'Larry', 'Moe'])</code> declares that a parameter can be one of three strings. Some of the specifiers can be combined, so <code>JSC.array(JSC.integer(10), JSC.character('a', 'z'))</code> declares that a parameter can be an array of 1 to 10 lowercase letters.</p>
 <p>An array of specifiers can also contain constants (such as string, numbers, or objects), so you can pass anything you need to into the predicate. If you need to pass in a function, then you must to wrap the function value with the <code>JSC.literal</code> specifier.</p>
 <p>You can also <a href="#specifiers">create your own specifiers</a>.</p>
-<h3>classifier</h3>
+<h4>classifier</h4>
 <p>You can optionally pass a classifier function as part of the claim. The classifier will receive the same arguments as the predicate (excluding the <code>verdict</code>). A classifier can do two things:</p>
 <ol>
     <li>It can examine the arguments, and return a string that classifies the case. The string is descriptive. The report can include a summary showing the number  of the cases belonging to each classification. This can be used to identify the classes that are trivial or problematic, or to help analyze the results.</li>
@@ -158,9 +158,11 @@ JSC.detail(<i>level</i>)</h4>
 <h4>JSC.on_result(<i>function(object)</i>)</h4>
 <p>The on_result function allows the registration of a callback function that will be given an object summarizing the test. The callback will be passed an object containing these properties:</p>
 <ul>
-    <li><code>pass:</code> The number of cases that passed</li>
-    <li><code>fail:</code> The number of cases that failed</li>
+    <li><code>pass:</code> The number of cases that passed.</li>
+    <li><code>fail:</code> The number of cases that failed.</li>
     <li><code>lost:</code> The number of cases that did not return a verdict.</li>
+    <li><code>ok</code>: true if <code>pass</code> is greater than 0 and <code>fail</code> and <code>lost</code> are both 0.</li>
+    <li><code>total</code>: The total number of cases.</li>
 </ul>
 <h4>
 JSC.reps(<i>repetitions</i>)</h4>
@@ -339,11 +341,12 @@ JSC.string(<i>number</i>, <i>value</i>)</h4>
 <p>The <i>signature</i> is an array of <i>specifiers</i>. The <i>signature</i> looks like a type declaration for the <i>predicate</i> function. </p>
 <p>It returns a function that can be processed by <code>JSC.check</code>.</p>
 <h4>
-    JSC.claim(<i>name</i>, <i>predicate</i>, <i>signature</i>, <i>classifier</i>)</h4>
+    JSC.claim(<i>name</i>, <i>predicate</i>, <i>signature</i>, <i>classifier</i>, <i>dont</i>)</h4>
 <p>The <code>claim</code> function takes a <i>name</i>, a <i>predicate</i> function, and an array of <i>specifiers</i>.</p>
 <p>The <i>predicate</i> function should <code>return verdict(true)</code> if a case passes, and <code>return verdict(false)</code> if the case fails. It will take a list of arguments that is generated by the array of <i>specifiers</i>. The array of <i>specifiers</i> looks like a type declaration for the <i>predicate</i> function.</p>
 <p>The <i>signature</i> is an array of <i>specifiers</i>. The <i>signature</i> looks like a type declaration for the <i>predicate</i> function. </p>
 <p>The <i>classifier</i> function is called before each call of the <i>predicate</i> function. It gets a chance to determine if the random values in its arguments will be a reasonable case. It can return <code>false</code> if the case should be thrown out and a new case generated to replace it. The <i>classifier</i> function can instead return a descriptive string that describes the case. These can be counted and displayed in the report.</p>
+<p>If <i>dont</i> is true, then the claim will not be added to a group, not will it be added to the set of all claims.</p>
 <p>It returns a function that can be processed by <code>JSC.check</code>.</p>
 <h4>
     JSC.group(<i>name</i>)</h4>
