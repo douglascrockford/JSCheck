@@ -4,6 +4,8 @@
 
 // Public Domain
 
+// http://www.jscheck.org/
+
 /*global clearTimeout, setTimeout*/
 
 /*properties
@@ -32,13 +34,11 @@ var JSC = (function () {
         on_pass,        // The function that receives the pass cases
         on_report,      // The function that receives the reportage
         on_result,      // The function that receives the summary
+        reject = {},
         reps = 100,     // The number of cases to be tried per claim
         slice = Array.prototype.slice,
         unique,         // Case serial number
 
-        add = function (a, b) {
-            return a + b;
-        },
         resolve = function (value) {
 
 // The resolve function takes a value. If that value is a function, then
@@ -57,6 +57,9 @@ var JSC = (function () {
                 : undefined;
         },
         go = function (func, value) {
+
+// If value is truthy, then pass it to the func, ignoring any exceptions.
+
             if (value) {
                 try {
                     func(value);
@@ -123,6 +126,10 @@ var JSC = (function () {
                     timeout_id;
 
                 function generate_report() {
+
+// Go through all of the cases. Identify the lost cases [on_lost]. Summarize
+// the cases [on_result]. Produce a detailed report [on_report].
+
                     var class_fail,
                         class_pass,
                         class_lost,
@@ -200,7 +207,8 @@ var JSC = (function () {
                             i += 1;
                             now_claim = the_case.claim;
                             the_class = the_case.classification;
-                            if (the_class && typeof class_pass[the_class] !== 'number') {
+                            if (the_class &&
+                                    typeof class_pass[the_class] !== 'number') {
                                 class_pass[the_class] = 0;
                                 class_fail[the_class] = 0;
                                 class_lost[the_class] = 0;
@@ -241,7 +249,10 @@ var JSC = (function () {
                         go(on_result, {
                             pass: total_pass,
                             fail: total_fail,
-                            lost: total_lost
+                            lost: total_lost,
+                            total: total_pass + total_fail + total_lost,
+                            ok: total_lost === 0 && total_fail === 0 &&
+                                total_pass > 0
                         });
                         go(on_report, report);
                     }
@@ -250,37 +261,67 @@ var JSC = (function () {
 
 
                 function register(serial, value) {
+
+// This function is used by a claim function to register a new case, and it
+// is used by a case to report a verdict. The two uses are correlated by the
+// serial number.
+
+// If the cases object is gone, then late arriving lost result should be
+// ignored.
+
                     var the_case;
                     if (cases) {
                         the_case = cases[serial];
+
+// If the serial number has not been seen, then register a new case.
+// The case is added to the cases collection. The serial number is added to
+// the serials collection. The number of pending cases is increased.
+
                         if (the_case === undefined) {
                             cases[serial] = value;
                             serials.push(serial);
                             nr_pending += 1;
                         } else {
-                            if (the_case.pass === undefined) {
-                                if (value === true) {
-                                    the_case.pass = true;
-                                    go(on_pass, the_case);
-                                } else if (value === false) {
-                                    the_case.pass = false;
-                                    go(on_fail, the_case);
-                                } else {
-                                    the_case.pass = null;
-                                    the_case.exception = value;
-                                }
-                                nr_pending -= 1;
-                                if (nr_pending <= 0 && complete) {
-                                    return generate_report();
-                                }
-                            } else {
+
+// An existing case now gets its verdict. If it unexpectedly already has a
+// result, then throw an exception. Each case should have only one result.
+
+                            if (the_case.pass !== undefined) {
                                 throw the_case;
+                            }
+
+// If the result is a boolean, then the case is updated and sent to on_pass
+// or on_fail.
+
+                            if (value === true) {
+                                the_case.pass = true;
+                                go(on_pass, the_case);
+                            } else if (value === false) {
+                                the_case.pass = false;
+                                go(on_fail, the_case);
+                            } else {
+
+// Any other result indicates that the case was lost. Assume that the value
+// is an exception object.
+
+                                the_case.pass = null;
+                                the_case.exception = value;
+                            }
+
+// This case is no longer pending. If all of the cases have been generated and
+// given results, then generate the result.
+
+                            nr_pending -= 1;
+                            if (nr_pending <= 0 && complete) {
+                                generate_report();
                             }
                         }
                     }
                     return value;
                 }
 
+
+// Make an array of the claims to be checked.
 
                 if (typeof claim === 'function') {
                     array = [claim];
@@ -291,8 +332,12 @@ var JSC = (function () {
                     }
                 } else {
                     array = all;
+                    ms = ms || claim;
                 }
                 unique = 0;
+
+// Process each claim.
+
                 array.forEach(function (claim) {
                     var at_most = reps * 10,
                         counter = 0,
@@ -304,20 +349,29 @@ var JSC = (function () {
 // Loop over the generation and testing of cases.
 
                     for (counter = i = 0; counter < reps && i < at_most; i += 1) {
-                        if (claim(register)) {
+                        if (claim(register) !== reject) {
                             counter += 1;
                         }
                     }
                 });
+
+// All of the case predicates have been called.
+
                 complete = true;
+
+// If all of the cases have returned verdicts, then generate the report.
+
                 if (nr_pending <= 0) {
                     generate_report();
+
+// Otherwise, start the timer.
+
                 } else if (ms > 0) {
                     timeout_id = setTimeout(generate_report, ms);
                 }
                 return jscheck;
             },
-            claim: function (name, predicate, signature, classifier) {
+            claim: function (name, predicate, signature, classifier, dont) {
 
 // A claim consists of
 //  a unique name which is displayed in the the report,
@@ -342,22 +396,37 @@ var JSC = (function () {
                             return resolve(value);
                         }),
                         classification = '',
+                        result,
                         serial,
                         verdict;
+
+// If an classifier function was provided, then call it to obtain a
+// classification. If the classification is not a string, then reject the
+// case.
+
                     if (typeof classifier === 'function') {
                         classification = classifier.apply(args, args);
                         if (typeof classification !== 'string') {
-                            return false;
+                            return reject;
                         }
                     }
+
+// Create a unique serial number for this case.
+
                     unique += 1;
                     serial = unique;
+
+// Create a verdict function that wraps the register function.
+
                     verdict = function (result) {
                         if (result === undefined) {
                             result = null;
                         }
                         return register(serial, result);
                     };
+
+// Register an object that represents this case.
+
                     register(serial, {
                         args: args,
                         claim: claim,
@@ -365,27 +434,45 @@ var JSC = (function () {
                         classifier: classifier,
                         group: group,
                         name: name,
+                        pass: undefined,
                         predicate: predicate,
-                        signature: signature,
                         serial: serial,
+                        signature: signature,
                         verdict: verdict
                     });
-                    try {
-                        predicate.apply(args, [verdict].concat(args));
-                    } catch (e) {
-                        verdict(typeof e === 'boolean' ? null : e);
-                    }
-                    return true;
-                }
 
-                if (group) {
-                    if (!Array.isArray(groups[group])) {
-                        groups[group] = [claim];
-                    } else {
-                        groups[group].push(claim);
+// Call the predicate, giving it the verdict function and all of the case's
+// arguments. The predicate must use the verdict callback to signal the result
+// of the case.
+
+                    try {
+                        return predicate.apply(args, [verdict].concat(args));
+
+// If the predicate throws, then this is a lost case. Use the exception
+// as the verdict, but don't allow the exception to be a boolean, because that
+// would be confusing.
+
+                    } catch (e) {
+                        return verdict(typeof e === 'boolean' ? null : e);
                     }
                 }
-                all.push(claim);
+                if (dont !== true) {
+
+// If there is a group active, then add this claim to the group.
+// (See the group method.)
+
+                    if (group) {
+                        if (!Array.isArray(groups[group])) {
+                            groups[group] = [claim];
+                        } else {
+                            groups[group].push(claim);
+                        }
+                    }
+
+// Add this claim to the set of all claims.
+
+                    all.push(claim);
+                }
                 return claim;
             },
             clear: function () {
@@ -524,7 +611,9 @@ var JSC = (function () {
                     if (array.length === weights.length) {
                         var base = 0,
                             n = array.length - 1,
-                            total = weights.reduce(add, 0),
+                            total = weights.reduce(function (a, b) {
+                                return a + b;
+                            }, 0),
                             list = weights.map(function (value) {
                                 base += value / total;
                                 return base;
@@ -594,13 +683,8 @@ var JSC = (function () {
                 };
             },
             test: function (name, predicate, signature, classifier, ms) {
-                var claim,
-                    group = now_group;
-                now_group = '';
-                claim = JSC.claim(name, predicate, signature, classifier);
-                now_group = group;
-                all.pop();
-                return JSC.check(claim, ms);
+                return JSC.check(JSC.claim(name, predicate, signature,
+                    classifier, true), ms);
             }
         };
     return jscheck.clear();
