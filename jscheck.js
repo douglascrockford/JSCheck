@@ -1,6 +1,6 @@
 // jscheck.js
 // Douglas Crockford
-// 2012-05-20
+// 2012-05-22
 
 // Public Domain
 
@@ -12,10 +12,10 @@
     apply, args, array, boolean, call, charAt, charCodeAt, character, check,
     claim, classification, classifier, clear, concat, detail, exception, fail,
     floor, forEach, fromCharCode, group, integer, isArray, join, keys, length,
-    literal, lost, map, name, number, object, on_fail, on_lost, on_pass,
+    literal, lost, map, name, number, object, ok, on_fail, on_lost, on_pass,
     on_report, on_result, one_of, pass, predicate, prototype, push, random,
     reduce, replace, reps, resolve, sequence, serial, signature, slice, sort,
-    string, stringify, test, verdict
+    string, stringify, test, total, verdict
 */
 
 
@@ -67,7 +67,7 @@ var JSC = (function () {
             }
         },
 
-        jscheck = {
+        jsc = {
             array: function (dimension, value) {
                 return Array.isArray(dimension)
                     ? function () {
@@ -106,7 +106,7 @@ var JSC = (function () {
                         return String.fromCharCode(integer(i));
                     };
                 }
-                var ji = jscheck.integer(i, j);
+                var ji = jsc.integer(i, j);
                 return function () {
                     return String.fromCharCode(ji());
                 };
@@ -114,7 +114,7 @@ var JSC = (function () {
             check: function (claim, ms) {
 
 // The check function optionally takes a claim function or the name of a group.
-// The default is to check all claims. It returns the jscheck object.
+// The default is to check all claims. It returns the jsc object.
 // The results will be provided to callback functions that are registered
 // with the on_* methods.
 
@@ -369,7 +369,7 @@ var JSC = (function () {
                 } else if (ms > 0) {
                     timeout_id = setTimeout(generate_report, ms);
                 }
-                return jscheck;
+                return jsc;
             },
             claim: function (name, predicate, signature, classifier, dont) {
 
@@ -396,7 +396,6 @@ var JSC = (function () {
                             return resolve(value);
                         }),
                         classification = '',
-                        result,
                         serial,
                         verdict;
 
@@ -479,15 +478,15 @@ var JSC = (function () {
                 all = [];
                 groups = {};
                 now_group = '';
-                return jscheck;
+                return jsc;
             },
             detail: function (level) {
                 detail = level;
-                return jscheck;
+                return jsc;
             },
             group: function (name) {
                 now_group = name || '';
-                return jscheck;
+                return jsc;
             },
             integer: function (i, j) {
                 if (i === undefined) {
@@ -633,27 +632,27 @@ var JSC = (function () {
             },
             on_fail: function (func) {
                 on_fail = func;
-                return jscheck;
+                return jsc;
             },
             on_lost: function (func) {
                 on_lost = func;
-                return jscheck;
+                return jsc;
             },
             on_pass: function (func) {
                 on_pass = func;
-                return jscheck;
+                return jsc;
             },
             on_report: function (func) {
                 on_report = func;
-                return jscheck;
+                return jsc;
             },
             on_result: function (func) {
                 on_result = func;
-                return jscheck;
+                return jsc;
             },
             reps: function (number) {
                 reps = number;
-                return jscheck;
+                return jsc;
             },
             resolve: resolve,
             sequence: function (array) {
@@ -677,7 +676,7 @@ var JSC = (function () {
                         return JSON.stringify(resolve(dimension));
                     };
                 }
-                var ja = jscheck.array(dimension, value);
+                var ja = jsc.array(dimension, value);
                 return function () {
                     return ja().join('');
                 };
@@ -687,5 +686,5 @@ var JSC = (function () {
                     classifier, true), ms);
             }
         };
-    return jscheck.clear();
+    return jsc.clear();
 }());
