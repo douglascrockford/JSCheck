@@ -671,14 +671,30 @@ var JSC = (function () {
                 };
             },
             string: function (dimension, value) {
+                var len = arguments.length,
+                    parts = [],
+                    i = 0;
+
                 if (value === undefined) {
                     return function () {
                         return JSON.stringify(resolve(dimension));
                     };
                 }
-                var ja = jsc.array(dimension, value);
+
+                function part(dimension, value) {
+                    var ja = jsc.array(dimension, value);
+
+                    return function () {
+                        return ja().join('');
+                    };
+                }
+
+                for (i = 0; i < len; i += 2) {
+                    parts.push(part(arguments[i], arguments[i + 1]));
+                }
+
                 return function () {
-                    return ja().join('');
+                    return parts.map(resolve).join('');
                 };
             },
             test: function (name, predicate, signature, classifier, ms) {
