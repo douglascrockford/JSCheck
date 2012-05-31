@@ -48,13 +48,13 @@ var JSC = (function () {
                 ? value.apply(null, slice.call(arguments, 1))
                 : value;
         },
-        integer = function (value) {
+        integer = function (value, fallback) {
             value = resolve(value);
             return typeof value === 'number'
                 ? Math.floor(value)
                 : typeof value === 'string'
                 ? value.charCodeAt(0)
-                : undefined;
+                : fallback;
         },
         go = function (func, value) {
 
@@ -510,7 +510,7 @@ var JSC = (function () {
                         return integer_prime;
                     };
                 }
-                i = integer(i, 0) || 0;
+                i = integer(i, 0);
                 j = integer(j, 0);
                 if (j === undefined) {
                     j = i;
