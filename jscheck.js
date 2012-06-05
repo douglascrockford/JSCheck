@@ -1,6 +1,6 @@
 // jscheck.js
 // Douglas Crockford
-// 2012-05-22
+// 2012-06-01
 
 // Public Domain
 
@@ -48,13 +48,13 @@ var JSC = (function () {
                 ? value.apply(null, slice.call(arguments, 1))
                 : value;
         },
-        integer = function (value) {
+        integer = function (value, default_value) {
             value = resolve(value);
             return typeof value === 'number'
                 ? Math.floor(value)
                 : typeof value === 'string'
                 ? value.charCodeAt(0)
-                : undefined;
+                : default_value;
         },
         go = function (func, value) {
 
@@ -390,6 +390,9 @@ var JSC = (function () {
 // in the group.
 
                 var group = now_group;
+                if (!Array.isArray(signature)) {
+                    signature = [signature];
+                }
 
                 function claim(register) {
                     var args = signature.map(function (value) {
@@ -510,7 +513,7 @@ var JSC = (function () {
                         return integer_prime;
                     };
                 }
-                i = integer(i, 0) || 0;
+                i = integer(i, 0);
                 j = integer(j, 0);
                 if (j === undefined) {
                     j = i;
@@ -670,15 +673,32 @@ var JSC = (function () {
                     return resolve(array[i]);
                 };
             },
-            string: function (dimension, value) {
-                if (value === undefined) {
+            string: function () {
+                var i,
+                    length = arguments.length,
+                    pieces = [];
+
+                if (length === 0) {
+                    throw new Error("Missing value for string.");
+                }
+
+                function pair(dimension, value) {
+                    if (i + 1 === length) {
+                        return function () {
+                            return JSON.stringify(resolve(dimension));
+                        };
+                    }
+                    var ja = jsc.array(dimension, value);
                     return function () {
-                        return JSON.stringify(resolve(dimension));
+                        return ja().join('');
                     };
                 }
-                var ja = jsc.array(dimension, value);
+
+                for (i = 0; i < length; i += 2) {
+                    pieces.push(pair(arguments[i], arguments[i + 1]));
+                }
                 return function () {
-                    return ja().join('');
+                    return pieces.map(resolve).join('');
                 };
             },
             test: function (name, predicate, signature, classifier, ms) {
