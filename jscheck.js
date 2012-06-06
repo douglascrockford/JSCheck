@@ -574,9 +574,8 @@ var JSC = (function () {
                         values = resolve(value);
                         if (Array.isArray(keys)) {
                             keys.forEach(function (key, i) {
-                                i = i % values.length;
                                 result[key] = resolve((Array.isArray(values)
-                                    ? values[i]
+                                    ? values[i % values.length]
                                     : value), i);
                             });
                             return result;
