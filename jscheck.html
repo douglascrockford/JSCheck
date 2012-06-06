@@ -248,7 +248,7 @@ JSC.reps(<i>repetitions</i>)</h4>
     JSC.integer()</h4>
 <p>The <code>integer</code> specifier generates prime numbers<i></i>. Sometimes when testing formulas, it is useful to plug prime numbers into the variables.</p>
 <h4>JSC.integer(<i>i</i>)</h4>
-<p>The <code>integer</code> specifier generates an integer between 1 and <i>i</i>.</p>
+<p>The <code>integer</code> specifier generates an integer between 1 (or -1 if <i>i < 0</i>) and <i>i</i>.</p>
 <h4>
     JSC.integer(<i>i</i>, <i>j</i>)</h4>
 <p>The <code>integer</code> specifier generates an integer between <i>i</i> and <i>j</i>.</p>
@@ -257,10 +257,10 @@ JSC.reps(<i>repetitions</i>)</h4>
 <p>The <code>literal</code> specifier generates the <i>value</i> without interpreting it. For most values (strings, numbers, boolean, objects, arrays), the <code>literal</code> specifier is not needed. It is needed if you want to pass a function <i>value</i> to a predicate, because function values are assumed to be the products of specifiers.</p>
 <h4>
     JSC.number(<i>x</i>)</h4>
-<p>The <code>number</code> specifier produces  random numbers between 0 and <i>x</i>.</p>
+<p>The <code>number</code> specifier produces random numbers between 0 and <i>x</i>.</p>
 <h4>
     JSC.number(<i>x</i>, <i>y</i>)</h4>
-<p>The <code>number</code> specifier produces  random numbers between <i>x</i> and <i>y</i>.</p>
+<p>The <code>number</code> specifier produces random numbers between <i>x</i> and <i>y</i>.</p>
 <h4>
     JSC.object(<i>object</i>)    </h4>
 <p>The <code>object</code> specifier takes an <i>object</i> as a template. It will go through the enumerable own properties of  <i>object</i>, expanding the specifiers it contains. So, for example,</p>

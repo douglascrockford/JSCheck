@@ -513,12 +513,12 @@ var JSC = (function () {
                         return integer_prime;
                     };
                 }
-                i = integer(i, 0);
-                j = integer(j, 0);
                 if (j === undefined) {
                     j = i;
-                    i = 1;
+                    i = i > 0 ? 1 : -1;
                 }
+                i = integer(i, 0);
+                j = integer(j, 0);
                 if (i === j) {
                     return i;
                 }
