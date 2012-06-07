@@ -1,6 +1,6 @@
 // jscheck.js
 // Douglas Crockford
-// 2012-06-01
+// 2012-06-06
 
 // Public Domain
 
@@ -58,11 +58,12 @@ var JSC = (function () {
         },
         go = function (func, value) {
 
-// If value is truthy, then pass it to the func, ignoring any exceptions.
+// If value is truthy, then pass it to the func, ignoring any exceptions,
+// especially if func is not actually a function.
 
             if (value) {
                 try {
-                    func(value);
+                    return func(value);
                 } catch (ignore) {}
             }
         },
@@ -574,9 +575,8 @@ var JSC = (function () {
                         values = resolve(value);
                         if (Array.isArray(keys)) {
                             keys.forEach(function (key, i) {
-                                i = i % values.length;
                                 result[key] = resolve((Array.isArray(values)
-                                    ? values[i]
+                                    ? values[i % values.length]
                                     : value), i);
                             });
                             return result;
@@ -660,11 +660,9 @@ var JSC = (function () {
             resolve: resolve,
             sequence: function (array) {
                 var i = -1;
-
-// A signature can contain a one of specification indicating one of the
-// elements of an array. Those elements can be constants or other
-// specifications.
-
+                if (arguments.length > 1) {
+                    array = slice.call(arguments, 0);
+                }
                 return function () {
                     i += 1;
                     if (i >= array.length) {
