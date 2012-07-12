@@ -76,7 +76,7 @@ p {
 <body>
 <h1>JSCheck</h1>
 <p>Douglas Crockford<br>
-    2012-05-21
+    2012-07-12
 </p>
 <p><b>JSCheck</b> is a testing tool for JavaScript. It was inspired by <a href="http://en.wikipedia.org/wiki/QuickCheck">QuickCheck</a>, a testing tool for Haskell developed by  Koen Claessen and John Hughes of Chalmers University of Technology.</p>
 <p><b>JSCheck</b> is a specification-driven testing tool. From a description of the properties of a system, function, or object, it will generate random test cases attempting to prove those properties, and then report its findings. That can be especially effective in managing the evolution of a program because it can show the conformance of new code to old code. It also provides an interesting level of self-documentation, because the executable specifications it relies on can provide a good view of the workings of a program.</p>
@@ -105,12 +105,12 @@ p {
 <h4>signature</h4>
 <p>The signature is an array of specifiers that describe the types of the predicate's arguments. (From a procedural perspective, specifiers are generators, but JavaScript may get a new generator feature which is very different, so to slightly reduce confusion, we will take a declarative view.)</p>
 <p><b>JSCheck</b> provides a small library of specifiers that you can use in your claim. For example, <code>JSC.integer(10)</code> declares that a parameter should be an integer between 1 and 10. <code>JSC.one_of(['Curly', 'Larry', 'Moe'])</code> declares that a parameter can be one of three strings. Some of the specifiers can be combined, so <code>JSC.array(JSC.integer(10), JSC.character('a', 'z'))</code> declares that a parameter can be an array of 1 to 10 lowercase letters.</p>
-<p>An array of specifiers can also contain constants (such as string, numbers, or objects), so you can pass anything you need to into the predicate. If you need to pass in a function, then you must to wrap the function value with the <code>JSC.literal</code> specifier.</p>
+<p>An array of specifiers can also contain constants (such as string, numbers, or objects), so you can pass anything you need to into the predicate. If you need to pass in a function, then you must  wrap the function value with the <code>JSC.literal</code> specifier.</p>
 <p>You can also <a href="#specifiers">create your own specifiers</a>.</p>
 <h4>classifier</h4>
 <p>You can optionally pass a classifier function as part of the claim. The classifier will receive the same arguments as the predicate (excluding the <code>verdict</code>). A classifier can do two things:</p>
 <ol>
-    <li>It can examine the arguments, and return a string that classifies the case. The string is descriptive. The report can include a summary showing the number  of the cases belonging to each classification. This can be used to identify the classes that are trivial or problematic, or to help analyze the results.</li>
+    <li>It can examine the arguments, and return a string that classifies the case. The string is descriptive. The report can include a summary showing the number  of  cases belonging to each classification. This can be used to identify the classes that are trivial or problematic, or to help analyze the results.</li>
     <li>Since the cases are being generated randomly,  some cases might not be meaningful or useful. The classifier can have a case rejected by returning <code>false</code>. <b>JSCheck</b> will attempt to generate another case to replace it. It is recommended that the classifier reject fewer than 90% of the cases. If you are accepting less than 10% of the potential cases, then you should probably reformulate your claim.</li>
 </ol>
 <h2>The <b>JSCheck</b> functions</h2>
@@ -171,7 +171,7 @@ JSC.detail(<i>level</i>)</h4>
     <li><code>signature</code>: The signature array.</li>
 </ul>
 <h4>JSC.on_pass(<i>function(object)</i>)</h4>
-<p>The <code>on_fail</code> function allows the registration of a callback <i>function</i> that will be given an <i>object</i> for each passing case. This can be used to trigger further tests or to begin deeper processing or reporting. The callback <i>function</i> will be passed an <i>object</i> containing these properties:</p>
+<p>The <code>on_pass</code> function allows the registration of a callback <i>function</i> that will be given an <i>object</i> for each passing case. This can be used to trigger further tests or to begin deeper processing or reporting. The callback <i>function</i> will be passed an <i>object</i> containing these properties:</p>
 <ul>
     <li><code>args</code>: The array of arguments of the case.</li>
     <li><code>claim</code>: The claim function.</li>
@@ -373,9 +373,9 @@ JSC.string(<i>number</i>, <i>value</i>)</h4>
 &quot;Lrxav768561%&quot;
 ...</pre>
 <h3>Claim processing:</h3>
-<p>The <code>JSC.claim</code> function creates claims, and the <code>JSC.check</code> function tests claims by generates the cases and produces the reports.</p>
+<p>The <code>JSC.claim</code> function creates claims, and the <code>JSC.check</code> function tests claims by generating the cases and produces the reports.</p>
 <h4>JSC.check(<i>milliseconds</i>)</h4>
-<p>Process all of the claims that have been construct since the beginning or since the most recent call to <code>JSC.clear</code>. </p>
+<p>Process all of the claims that have been constructed since the beginning or since the most recent call to <code>JSC.clear</code>. </p>
 <p>If the <i>milliseconds</i> are specified, that determines the  amount of time to wait before declaring that the unfinished cases are failures. The default is to wait forever.</p>
 <p>It returns the <b>JSCheck</b> object.</p>
 <h4>
