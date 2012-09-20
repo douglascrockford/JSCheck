@@ -376,17 +376,17 @@ JSC.string(<i>number</i>, <i>value</i>)</h4>
 <p>The <code>JSC.claim</code> function creates claims, and the <code>JSC.check</code> function tests claims by generating the cases and produces the reports.</p>
 <h4>JSC.check(<i>milliseconds</i>)</h4>
 <p>Process all of the claims that have been constructed since the beginning or since the most recent call to <code>JSC.clear</code>. </p>
-<p>If the <i>milliseconds</i> are specified, that determines the  amount of time to wait before declaring that the unfinished cases are failures. The default is to wait forever.</p>
+<p>If the <i>milliseconds</i> are specified, that determines the  amount of time to wait before declaring that the unfinished cases are lost. The default is to wait forever.</p>
 <p>It returns the <b>JSCheck</b> object.</p>
 <h4>
     JSC.check(<i>group</i>, <i>milliseconds</i>)</h4>
 <p>Process all of the claims of a specific group.</p>
-<p> If the <i>milliseconds</i> are specified, that determines the  amount of time to wait before declaring that the unfinished cases are failures. The default is to wait forever.</p>
+<p> If the <i>milliseconds</i> are specified, that determines the  amount of time to wait before declaring that the unfinished cases are lost. The default is to wait forever.</p>
 <p>It returns the <b>JSCheck</b> object.</p>
 <h4>
     JSC.check(<i>claim</i>, <i>milliseconds</i>)</h4>
 <p>Process the specific <i>claim</i> function.</p>
-<p> If the <i>milliseconds</i> are specified, that determines the  amount of time to wait before declaring that the unfinished cases are failures. The default is to wait forever.</p>
+<p> If the <i>milliseconds</i> are specified, that determines the  amount of time to wait before declaring that the unfinished cases are lost. The default is to wait forever.</p>
 <p>It returns the <b>JSCheck</b> object.</p>
 <h4>JSC.claim(<i>name</i>, <i>predicate</i>, <i>signature</i>)</h4>
 <p>The <code>claim</code> function takes a <i>name</i>, a <i>predicate</i> function, and a <i>signature</i>.</p>
