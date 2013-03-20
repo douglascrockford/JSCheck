@@ -1,6 +1,6 @@
 // jscheck.js
 // Douglas Crockford
-// 2012-06-06
+// 2013-03-19
 
 // Public Domain
 
@@ -658,11 +658,11 @@ var JSC = (function () {
                 return jsc;
             },
             resolve: resolve,
-            sequence: function (array) {
-                var i = -1;
-                if (arguments.length > 1) {
-                    array = slice.call(arguments, 0);
-                }
+            sequence: function (seq) {
+                var array = arguments.length > 1
+                        ? slice.call(arguments, 0)
+                        : seq,
+                    i = -1;
                 return function () {
                     i += 1;
                     if (i >= array.length) {
