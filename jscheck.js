@@ -1,6 +1,6 @@
 // jscheck.js
 // Douglas Crockford
-// 2013-03-19
+// 2013-05-19
 
 // Public Domain
 
@@ -11,11 +11,11 @@
 /*properties
     apply, args, array, boolean, call, charAt, charCodeAt, character, check,
     claim, classification, classifier, clear, concat, detail, exception, fail,
-    floor, forEach, fromCharCode, group, integer, isArray, join, keys, length,
-    literal, lost, map, name, number, object, ok, on_fail, on_lost, on_pass,
-    on_report, on_result, one_of, pass, predicate, prototype, push, random,
-    reduce, replace, reps, resolve, sequence, serial, signature, slice, sort,
-    string, stringify, test, total, verdict
+    falsy, floor, forEach, fromCharCode, group, integer, isArray, join, keys,
+    length, literal, lost, map, name, number, object, ok, on_fail, on_lost,
+    on_pass, on_report, on_result, one_of, pass, predicate, prototype, push,
+    random, reduce, replace, reps, resolve, sequence, serial, signature, slice,
+    sort, string, stringify, test, total, verdict
 */
 
 
@@ -23,6 +23,7 @@ var JSC = (function () {
     'use strict';
 
     var all,            // The collection of all claims
+        bottom = [false, null, undefined, '', 0, NaN],
         detail = 3,     // The current level of report detail
         groups,          // The collection of named groups of claims
         integer_prime = 1,
@@ -487,6 +488,9 @@ var JSC = (function () {
             detail: function (level) {
                 detail = level;
                 return jsc;
+            },
+            falsy: function () {
+                return JSC.one_of(bottom);
             },
             group: function (name) {
                 now_group = name || '';
