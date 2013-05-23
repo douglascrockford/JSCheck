@@ -1,6 +1,6 @@
 // jscheck.js
 // Douglas Crockford
-// 2013-05-19
+// 2013-05-22
 
 // Public Domain
 
@@ -23,6 +23,7 @@ var JSC = (function () {
     'use strict';
 
     var all,            // The collection of all claims
+        any,            // The generator of any value,
         bottom = [false, null, undefined, '', 0, NaN],
         detail = 3,     // The current level of report detail
         groups,          // The collection of named groups of claims
@@ -70,24 +71,34 @@ var JSC = (function () {
         },
 
         jsc = {
-            array: function (dimension, value) {
-                return Array.isArray(dimension)
-                    ? function () {
+            any: function () {
+                return jsc.one_of(any);
+            },
+            array: function array(dimension, value) {
+                if (Array.isArray(dimension)) {
+                    return function () {
                         return dimension.map(function (value) {
                             return resolve(value);
                         });
                     }
-                    : function () {
-                        var i,
-                            n = resolve(dimension),
-                            result = [];
-                        if (typeof n === 'number' && isFinite(n)) {
-                            for (i = 0; i < n; i += 1) {
-                                result.push(resolve(value, i));
-                            }
+                }
+                if (dimension === undefined) {
+                    dimension = jsc.integer(4);
+                }
+                if (value === undefined) {
+                    value = jsc.any();
+                }
+                return function () {
+                    var i,
+                        n = resolve(dimension),
+                        result = [];
+                    if (typeof n === 'number' && isFinite(n)) {
+                        for (i = 0; i < n; i += 1) {
+                            result.push(resolve(value, i));
                         }
-                        return result;
-                    };
+                    }
+                    return result;
+                };
             },
             boolean: function (bias) {
 
@@ -102,11 +113,23 @@ var JSC = (function () {
                     return Math.random() < bias;
                 };
             },
-            character: function (i, j) {
+            character: function character(i, j) {
                 if (j === undefined) {
-                    return function () {
-                        return String.fromCharCode(integer(i));
-                    };
+                    if (i === undefined) {
+                        i = 32;
+                        j = 127;
+                    } else {
+                        return function () {
+                            var value = resolve(i);
+                            if (typeof value === 'number') {
+                                return String.fromCharCode(integer(i));
+                            }
+                            if (typeof value === 'string') {
+                                return value.charAt(0);
+                            }
+                            return '?';
+                        };
+                    }
                 }
                 var ji = jsc.integer(i, j);
                 return function () {
@@ -187,7 +210,7 @@ var JSC = (function () {
                                             (nr_fail ? ", " + nr_fail + " fail" : "") +
                                             (nr_lost ? ", " + nr_lost + " lost" : "") +
                                             '\n';
-                                        if (nr_class && detail >= 2) {
+                                        if (detail >= 2) {
                                             Object.keys(class_pass).sort().forEach(generate_class);
                                             report += lines;
                                         }
@@ -490,7 +513,7 @@ var JSC = (function () {
                 return jsc;
             },
             falsy: function () {
-                return JSC.one_of(bottom);
+                return jsc.one_of(bottom);
             },
             group: function (name) {
                 now_group = name || '';
@@ -518,8 +541,8 @@ var JSC = (function () {
                         return integer_prime;
                     };
                 }
-                i = integer(i, 0);
-                j = integer(j, 0);
+                i = integer(i, 1);
+                j = integer(j, 1);
                 if (j === undefined) {
                     j = i;
                     i = 1;
@@ -561,21 +584,33 @@ var JSC = (function () {
                 };
             },
             object: function (object, value) {
+                if (object === undefined) {
+                    object = jsc.integer(1, 4);
+                }
                 return function () {
-                    var keys,
+                    var any,
+                        i,
+                        keys,
                         result = {},
+                        string,
                         values;
-
+                    keys = resolve(object);
+                    if (typeof keys === 'number') {
+                        string = jsc.string();
+                        any = jsc.any();
+                        for (i = 0; i < keys; i += 1) {
+                            result[string()] = any();
+                        }
+                        return result;
+                    }
                     if (value === undefined) {
-                        keys = resolve(object);
                         if (keys && typeof keys === 'object') {
-                            Object.keys(keys).forEach(function (key) {
+                            Object.keys(object).forEach(function (key) {
                                 result[key] = resolve(keys[key]);
                             });
                             return result;
                         }
                     } else {
-                        keys = resolve(object);
                         values = resolve(value);
                         if (Array.isArray(keys)) {
                             keys.forEach(function (key, i) {
@@ -663,6 +698,11 @@ var JSC = (function () {
             },
             resolve: resolve,
             sequence: function (seq) {
+                if (seq === undefined) {
+                    return function () {
+                        return unique + 1;
+                    };
+                }
                 var array = arguments.length > 1
                         ? slice.call(arguments, 0)
                         : seq,
@@ -675,13 +715,13 @@ var JSC = (function () {
                     return resolve(array[i]);
                 };
             },
-            string: function () {
+            string: function string(value) {
                 var i,
                     length = arguments.length,
                     pieces = [];
 
-                if (length === 0) {
-                    throw new Error("Missing value for string.");
+                if (value === undefined || typeof value === 'boolean') {
+                    return string(jsc.integer(10), jsc.character(value));
                 }
 
                 function pair(dimension, value) {
@@ -708,5 +748,9 @@ var JSC = (function () {
                     classifier, true), ms);
             }
         };
+    any = [
+        jsc.falsy(), jsc.integer(), jsc.number(),
+        jsc.string(), true, Infinity, -Infinity
+    ];
     return jsc.clear();
 }());

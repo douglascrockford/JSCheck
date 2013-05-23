@@ -71,12 +71,12 @@ p {
     margin-left: 10pt;
 }
 </style>
-</head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head>
 
 <body>
 <h1>JSCheck</h1>
 <p>Douglas Crockford<br>
-    2012-07-12
+    2013-07-22
 </p>
 <p><b>JSCheck</b> is a testing tool for JavaScript. It was inspired by <a href="http://en.wikipedia.org/wiki/QuickCheck">QuickCheck</a>, a testing tool for Haskell developed by  Koen Claessen and John Hughes of Chalmers University of Technology.</p>
 <p><b>JSCheck</b> is a specification-driven testing tool. From a description of the properties of a system, function, or object, it will generate random test cases attempting to prove those properties, and then report its findings. That can be especially effective in managing the evolution of a program because it can show the conformance of new code to old code. It also provides an interesting level of self-documentation, because the executable specifications it relies on can provide a good view of the workings of a program.</p>
@@ -208,6 +208,18 @@ JSC.reps(<i>repetitions</i>)</h4>
 <p>It returns the <b>JSCheck</b> object.</p>
 <h3>Specifiers:</h3>
 <p>A specifier is a function that returns a function that can generate values of a particular type. The specifiers are used in building the signature that is used to construct a claim.</p>
+<h4>JSC.any()</h4>
+<p>The <code>any</code> specifier returns any random JavaScript value. It is short for <code>JSC.one_of([JSC.falsy(), JSC.integer(), JSC.number(),
+JSC.string(), true, Infinity, -Infinity])</code>.</p>
+<h4>JSC.array()</h4>
+<p>The <code>array</code> specifier returns an array containing random stuff. It is short for <code>JSC.array(JSC.integer(4), JSC.any())</code>. So for example,</p>
+<pre>JSC.array()</pre>
+<p>can produce arrays such as</p>
+<pre>["enWsH$",null]
+[false,"\\eXt]jBS"," W6"]
+[7,"!jd"]
+[11]
+...</pre>
 <h4>
     JSC.array(<i>array</i>)</h4>
 <p>The <code>array</code> specifier takes an <i>array</i> as a template. It will go through the <i>array</i>, expanding the specifiers it contains. So, for example,</p>
@@ -234,10 +246,20 @@ JSC.reps(<i>repetitions</i>)</h4>
 ...</pre>
 <h4>
     JSC.boolean()</h4>
-<p>The <code>boolean</code> specifier will produce <code>true</code> and <code>false</code> with equal probability.</p>
+<p>The <code>boolean</code> specifier will produce <code>true</code> and <code>false</code> with equal probability. It is shorthand for <code>JSC.boolean(0.5)</code>.</p>
 <h4>
     JSC.boolean(<i>bias</i>)</h4>
 <p>The <code>boolean</code> specifier will produce <code>true</code> and <code>false</code>. If the <i>bias</i> is 0.50, it will produce them with equal probability. A lower <i>bias</i> will produce more <code>false</code>s, and a higher <i>bias</i> will produce more <code>true</code>s.</p>
+<h4>
+    JSC.character()</h4>
+<p>The <code>character</code> specifier generates a character. It is short for <code>JSC.character(32, 127)</code>. So, for example,</p>
+<pre>JSC.character()</pre>
+<p>can generate strings like</p>
+<pre>"*"
+"a"
+"J"
+"0"
+...</pre>
 <h4>
     JSC.character(<i>code</i>)</h4>
 <p>The <code>character</code> specifier treats its argument as a char code, generating a character.</p>
@@ -263,6 +285,17 @@ JSC.reps(<i>repetitions</i>)</h4>
 <h4>
     JSC.number(<i>x</i>, <i>y</i>)</h4>
 <p>The <code>number</code> specifier produces  random numbers between <i>x</i> and <i>y</i>.</p>
+<h4>JSC.object()</h4>
+<p>The object specifier produces random objects containing random keys and values. So for example.</p>
+<pre>JSC.object()</pre>
+<p>can generate objects like</p>
+<pre>{"adf*:J'mS%":""}
+{"_S-":0.23757726117037237,"{U":3,"[":null,":vL|_":"Bl=2C"}
+{"pV":0.8472617215011269,"3:":"xV<N>vi`","jGB8y":5,"$<9BFhA":true}
+{"1":7,"H@C>":0.01756326947361231}
+...</pre>
+<h4>JSC.object(<i>n</i>)</h4>
+<p>The object specifier makes an object containing <i>n</i> random keys and values.</p>
 <h4>
     JSC.object(<i>object</i>)    </h4>
 <p>The <code>object</code> specifier takes an <i>object</i> as a template. It will go through the enumerable own properties of  <i>object</i>, expanding the specifiers it contains. So, for example,</p>
@@ -282,8 +315,7 @@ JSC.reps(<i>repetitions</i>)</h4>
     <pre>JSC.object(
     JSC.array(JSC.integer(3, 8), JSC.string(4, JSC.character('a', 'z'))),
     JSC.boolean()
-)
-</pre>
+)</pre>
 <p>can generate objects like </p>
 <pre>{"jodo":true,"zhzm":false,"rcqz":true}
 {"odcr":true,"azax":true,"bnfx":true,"hmmc":false}
@@ -324,7 +356,7 @@ false
 produces values like
 <pre>8
 10
-1
+6
 10
 ...</pre>
 <h4>
@@ -346,8 +378,16 @@ produces values like
 1
 2
 ...</pre>
-<h4>
-    JSC.string(<i>value</i>)</h4>
+<h4>JSC.string()</h4>
+<p>The <code>string</code> specifier makes random ASCII strings. It is short for <code>JSC.string(JSC.integer(10), JSC.character())</code>. So for example,</p>
+<pre>JSC.string()</pre>
+<p>produces strings like</p>
+<pre>"hZO*3"
+"m-W2@KL&quot;
+&quot;,P+po0#2 &quot;
+&quot;tlt^[ ui`V&quot;
+...</pre>
+<h4>JSC.string(<i>value</i>)</h4>
 <p>The <code>string</code> specifier generates the stringification of the <i>value</i>, using <code>JSON.stringify</code>. So for example,</p>
 <pre>JSC.string(JSC.integer(1000, 9999))</pre>
 <p>produces values like</p>
@@ -362,12 +402,17 @@ JSC.string(<i>number</i>, <i>value</i>)</h4>
 <pre>JSC.string(JSC.integer(1, 8), JSC.one_of("aeiou")))</pre>
 <p>produces values like</p>
 <pre>"ieauae"
-"io"
+"uo"
 "iuieio"
-"iuu"
+"euu"
 ...</pre>
 <p>Any number of <i>number</i> <i>value</i> pairs can be provided, so</p>
-<pre> JSC.string(<br>&nbsp;&nbsp;&nbsp;&nbsp;1, JSC.character('A', 'Z'),<br>&nbsp;&nbsp;&nbsp;&nbsp;4, JSC.character('a', 'z'),<br>&nbsp;&nbsp;&nbsp;&nbsp;6, JSC.character('1', '9'),<br>&nbsp;&nbsp;&nbsp;&nbsp;1, JSC.one_of('!@#$%')<br>)</pre>
+<pre>JSC.string(
+    1, JSC.character('A', 'Z'),
+    4, JSC.character('a', 'z'),
+    6, JSC.character('1', '9'),
+    1, JSC.one_of('!@#$%')
+)</pre>
 <p>produces values like</p>
 <pre>&quot;Zsopx171765#&quot;
 &quot;Nfafw851294%&quot;
