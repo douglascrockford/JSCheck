@@ -1,6 +1,6 @@
 // jscheck.js
 // Douglas Crockford
-// 2013-05-26
+// 2013-09-22
 
 // Public Domain
 
@@ -522,22 +522,22 @@ var JSC = (function () {
             integer: function (i, j) {
                 if (i === undefined) {
                     return function () {
-                        var factor,
-                            reject;
+                        var exclude,
+                            factor;
                         do {
                             integer_prime += 2;
-                            reject = false;
+                            exclude = false;
                             if (integer_prime >= integer_sq_2) {
-                                reject = true;
+                                exclude = true;
                                 integer_sqrt += 2;
                                 integer_sq_2 = (integer_sqrt + 2) *
                                     (integer_sqrt + 2);
                             }
-                            for (factor = 3; !reject && factor <= integer_sqrt;
+                            for (factor = 3; !exclude && factor <= integer_sqrt;
                                     factor += 2) {
-                                reject = integer_prime % factor === 0;
+                                exclude = integer_prime % factor === 0;
                             }
-                        } while (reject);
+                        } while (exclude);
                         return integer_prime;
                     };
                 }
@@ -588,7 +588,7 @@ var JSC = (function () {
                     object = jsc.integer(1, 4);
                 }
                 return function () {
-                    var any,
+                    var gen,
                         i,
                         keys,
                         result = {},
@@ -597,9 +597,9 @@ var JSC = (function () {
                     keys = resolve(object);
                     if (typeof keys === 'number') {
                         string = jsc.string();
-                        any = jsc.any();
+                        gen = jsc.any();
                         for (i = 0; i < keys; i += 1) {
-                            result[string()] = any();
+                            result[string()] = gen();
                         }
                         return result;
                     }
