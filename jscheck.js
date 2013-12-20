@@ -1,6 +1,6 @@
 // jscheck.js
 // Douglas Crockford
-// 2013-09-22
+// 2013-12-20
 
 // Public Domain
 
@@ -11,8 +11,8 @@
 /*properties
     any, apply, args, array, boolean, call, charAt, charCodeAt, character,
     check, claim, classification, classifier, clear, concat, detail, exception,
-    fail, falsy, floor, forEach, fromCharCode, group, integer, isArray, join,
-    keys, length, literal, lost, map, name, number, object, ok, on_fail,
+    exports, fail, falsy, floor, forEach, fromCharCode, group, integer, isArray,
+    join, keys, length, literal, lost, map, name, number, object, ok, on_fail,
     on_lost, on_pass, on_report, on_result, one_of, pass, predicate, prototype,
     push, random, reduce, replace, reps, resolve, sequence, serial, signature,
     slice, sort, string, stringify, test, total, verdict
@@ -754,3 +754,8 @@ var JSC = (function () {
     ];
     return jsc.clear();
 }());
+
+// Expose interface through CommonJS if present
+if (typeof module === 'object') {
+    module.exports = JSC;
+}
