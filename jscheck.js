@@ -19,7 +19,7 @@
 */
 
 
-var JSC = (function () {
+(function (global) {
     'use strict';
 
     var all,            // The collection of all claims
@@ -752,5 +752,5 @@ var JSC = (function () {
         jsc.falsy(), jsc.integer(), jsc.number(),
         jsc.string(), true, Infinity, -Infinity
     ];
-    return jsc.clear();
-}());
+    global.JSC = jsc.clear();
+}(this));
