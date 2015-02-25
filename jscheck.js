@@ -1,6 +1,6 @@
 // jscheck.js
 // Douglas Crockford
-// 2014-10-23
+// 2015-02-25
 
 // Public Domain
 
@@ -8,7 +8,9 @@
 
 /*global clearTimeout, setTimeout*/
 
-/*properties
+/*jslint for */
+
+/*property
     any, apply, args, array, boolean, call, charAt, charCodeAt, character,
     check, claim, classification, classifier, clear, concat, detail, exception,
     fail, falsy, floor, forEach, fromCharCode, group, integer, isArray, join,
@@ -47,16 +49,16 @@ var JSC = (function () {
 // it is called to produce the return value.
 
             return typeof value === 'function'
-                ? value.apply(null, slice.call(arguments, 1))
-                : value;
+            ? value.apply(null, slice.call(arguments, 1))
+            : value;
         },
         integer = function (value, default_value) {
             value = resolve(value);
             return typeof value === 'number'
-                ? Math.floor(value)
-                : typeof value === 'string'
-                ? value.charCodeAt(0)
-                : default_value;
+            ? Math.floor(value)
+            : typeof value === 'string'
+            ? value.charCodeAt(0)
+            : default_value;
         },
         go = function (func, value) {
 
@@ -174,20 +176,26 @@ var JSC = (function () {
                     function generate_line(type, level) {
                         if (detail >= level) {
                             lines += " " + type + " [" + the_case.serial + "] " +
-                                the_case.classification + (
-                                    JSON.stringify(the_case.args)
-                                        .replace(/^\[/, '(')
-                                        .replace(/\]$/, ')')
-                                ) + '\n';
+                                    the_case.classification + (
+                                JSON.stringify(the_case.args)
+                                    .replace(/^\[/, '(')
+                                    .replace(/\]$/, ')')
+                            ) + '\n';
                         }
                     }
 
 
                     function generate_class(key) {
                         if (detail >= 3 || class_fail[key] || class_lost[key]) {
-                            report += ' ' + key + " pass " + class_pass[key] +
-                                (class_fail[key] ? " fail " + class_fail[key] : '') +
-                                (class_lost[key] ? " lost " + class_lost[key] : '') + '\n';
+                            report += ' ' + key + " pass " + class_pass[key] + (
+                                class_fail[key] 
+                                ? " fail " + class_fail[key] 
+                                : ''
+                            ) + (
+                                class_lost[key] 
+                                ? " lost " + class_lost[key] 
+                                : ''
+                            ) + '\n';
                         }
                     }
 
@@ -196,18 +204,26 @@ var JSC = (function () {
                         if (timeout_id) {
                             clearTimeout(timeout_id);
                         }
-                        for (;;) {
+                        while (true) {
                             next_case = cases[serials[i]];
                             if (!next_case || (next_case.claim !== now_claim)) {
                                 if (now_claim) {
                                     if (detail >= 1) {
-                                        report += the_case.name + ": " +
-                                            (nr_class ? nr_class + " classifications, " : "") +
-                                            (nr_pass + nr_fail + nr_lost) +
-                                            " cases tested, " + nr_pass + " pass" +
-                                            (nr_fail ? ", " + nr_fail + " fail" : "") +
-                                            (nr_lost ? ", " + nr_lost + " lost" : "") +
-                                            '\n';
+                                        report += the_case.name + ": " + (
+                                            nr_class 
+                                            ? nr_class + " classifications, " 
+                                            : ""
+                                        ) + (
+                                            nr_pass + nr_fail + nr_lost
+                                        ) + " cases tested, " + nr_pass + " pass" + (
+                                            nr_fail 
+                                            ? ", " + nr_fail + " fail" 
+                                            : ""
+                                        ) + (
+                                            nr_lost 
+                                            ? ", " + nr_lost + " lost" 
+                                            : ""
+                                        ) + '\n';
                                         if (detail >= 2) {
                                             Object.keys(class_pass).sort().forEach(generate_class);
                                             report += lines;
@@ -220,7 +236,9 @@ var JSC = (function () {
                                 if (!next_case) {
                                     break;
                                 }
-                                nr_fail = nr_lost = nr_pass = 0;
+                                nr_fail = 0;
+                                nr_lost = 0;
+                                nr_pass = 0;
                                 class_pass = {};
                                 class_fail = {};
                                 class_lost = {};
@@ -266,16 +284,22 @@ var JSC = (function () {
                         if (typeof claim === 'string' && detail >= 1) {
                             report = "Group " + claim + '\n\n' + report;
                         }
-                        report += "\nTotal pass " + total_pass +
-                            (total_fail ? ", fail " + total_fail : "") +
-                            (total_lost ? ", lost " + total_lost : "") + '\n';
+                        report += "\nTotal pass " + total_pass + (
+                            total_fail 
+                            ? ", fail " + total_fail 
+                            : ""
+                        ) + (
+                            total_lost 
+                            ? ", lost " + total_lost 
+                            : ""
+                        ) + '\n';
                         go(on_result, {
                             pass: total_pass,
                             fail: total_fail,
                             lost: total_lost,
                             total: total_pass + total_fail + total_lost,
                             ok: total_lost === 0 && total_fail === 0 &&
-                                total_pass > 0
+                                    total_pass > 0
                         });
                         go(on_report, report);
                     }
@@ -371,7 +395,7 @@ var JSC = (function () {
 
 // Loop over the generation and testing of cases.
 
-                    for (counter = i = 0; counter < reps && i < at_most; i += 1) {
+                    for (i = 0; counter < reps && i < at_most; i += 1) {
                         if (claim(register) !== reject) {
                             counter += 1;
                         }
@@ -478,7 +502,11 @@ var JSC = (function () {
 // would be confusing.
 
                     } catch (e) {
-                        return verdict(typeof e === 'boolean' ? null : e);
+                        return verdict(
+                            typeof e === 'boolean' 
+                            ? null 
+                            : e
+                        );
                     }
                 }
                 if (dont !== true) {
@@ -529,10 +557,13 @@ var JSC = (function () {
                                 exclude = true;
                                 integer_sqrt += 2;
                                 integer_sq_2 = (integer_sqrt + 2) *
-                                    (integer_sqrt + 2);
+                                        (integer_sqrt + 2);
                             }
-                            for (factor = 3; !exclude && factor <= integer_sqrt;
-                                    factor += 2) {
+                            for (
+                                factor = 3; 
+                                !exclude && factor <= integer_sqrt;
+                                factor += 2
+                            ) {
                                 exclude = integer_prime % factor === 0;
                             }
                         } while (exclude);
@@ -612,9 +643,11 @@ var JSC = (function () {
                         values = resolve(value);
                         if (Array.isArray(keys)) {
                             keys.forEach(function (key, i) {
-                                result[key] = resolve((Array.isArray(values)
+                                result[key] = resolve((
+                                    Array.isArray(values)
                                     ? values[i % values.length]
-                                    : value), i);
+                                    : value
+                                ), i);
                             });
                             return result;
                         }
@@ -636,15 +669,17 @@ var JSC = (function () {
 
                 if (typeof array === 'string') {
                     return function () {
-                        return array.charAt(Math.floor(Math.random() *
-                            array.length));
+                        return array.charAt(
+                            Math.floor(Math.random() * array.length)
+                        );
                     };
                 }
                 if (Array.isArray(array) && array.length > 0) {
                     if (!Array.isArray(weights)) {
                         return function () {
-                            return resolve(array[Math.floor(Math.random() *
-                                array.length)]);
+                            return resolve(
+                                array[Math.floor(Math.random() * array.length)]
+                            );
                         };
                     }
                     if (array.length === weights.length) {
@@ -702,8 +737,8 @@ var JSC = (function () {
                     };
                 }
                 var array = arguments.length > 1
-                        ? slice.call(arguments, 0)
-                        : seq,
+                    ? slice.call(arguments, 0)
+                    : seq,
                     i = -1;
                 return function () {
                     i += 1;
@@ -742,8 +777,10 @@ var JSC = (function () {
                 };
             },
             test: function (name, predicate, signature, classifier, ms) {
-                return JSC.check(JSC.claim(name, predicate, signature,
-                    classifier, true), ms);
+                return JSC.check(
+                    JSC.claim(name, predicate, signature, classifier, true), 
+                    ms
+                );
             }
         };
     any = [
