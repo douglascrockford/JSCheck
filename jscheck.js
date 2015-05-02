@@ -1,6 +1,6 @@
 // jscheck.js
 // Douglas Crockford
-// 2015-02-25
+// 2015-05-01
 
 // Public Domain
 
@@ -57,8 +57,8 @@ var JSC = (function () {
             return typeof value === 'number'
             ? Math.floor(value)
             : typeof value === 'string'
-            ? value.charCodeAt(0)
-            : default_value;
+                ? value.charCodeAt(0)
+                : default_value;
         },
         go = function (func, value) {
 
@@ -178,8 +178,8 @@ var JSC = (function () {
                             lines += " " + type + " [" + the_case.serial + "] " +
                                     the_case.classification + (
                                 JSON.stringify(the_case.args)
-                                    .replace(/^\[/, '(')
-                                    .replace(/\]$/, ')')
+                                        .replace(/^\[/, '(')
+                                        .replace(/\]$/, ')')
                             ) + '\n';
                         }
                     }
