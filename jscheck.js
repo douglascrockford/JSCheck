@@ -1,6 +1,6 @@
 // jscheck.js
 // Douglas Crockford
-// 2015-05-01
+// 2015-05-02
 
 // Public Domain
 
@@ -49,16 +49,16 @@ var JSC = (function () {
 // it is called to produce the return value.
 
             return typeof value === 'function'
-            ? value.apply(null, slice.call(arguments, 1))
-            : value;
+                ? value.apply(null, slice.call(arguments, 1))
+                : value;
         },
         integer = function (value, default_value) {
             value = resolve(value);
             return typeof value === 'number'
-            ? Math.floor(value)
-            : typeof value === 'string'
-                ? value.charCodeAt(0)
-                : default_value;
+                ? Math.floor(value)
+                : typeof value === 'string'
+                    ? value.charCodeAt(0)
+                    : default_value;
         },
         go = function (func, value) {
 
@@ -189,12 +189,12 @@ var JSC = (function () {
                         if (detail >= 3 || class_fail[key] || class_lost[key]) {
                             report += ' ' + key + " pass " + class_pass[key] + (
                                 class_fail[key] 
-                                ? " fail " + class_fail[key] 
-                                : ''
+                                    ? " fail " + class_fail[key] 
+                                    : ''
                             ) + (
                                 class_lost[key] 
-                                ? " lost " + class_lost[key] 
-                                : ''
+                                    ? " lost " + class_lost[key] 
+                                    : ''
                             ) + '\n';
                         }
                     }
@@ -211,18 +211,18 @@ var JSC = (function () {
                                     if (detail >= 1) {
                                         report += the_case.name + ": " + (
                                             nr_class 
-                                            ? nr_class + " classifications, " 
-                                            : ""
+                                                ? nr_class + " classifications, " 
+                                                : ""
                                         ) + (
                                             nr_pass + nr_fail + nr_lost
                                         ) + " cases tested, " + nr_pass + " pass" + (
                                             nr_fail 
-                                            ? ", " + nr_fail + " fail" 
-                                            : ""
+                                                ? ", " + nr_fail + " fail" 
+                                                : ""
                                         ) + (
                                             nr_lost 
-                                            ? ", " + nr_lost + " lost" 
-                                            : ""
+                                                ? ", " + nr_lost + " lost" 
+                                                : ""
                                         ) + '\n';
                                         if (detail >= 2) {
                                             Object.keys(class_pass).sort().forEach(generate_class);
@@ -286,12 +286,12 @@ var JSC = (function () {
                         }
                         report += "\nTotal pass " + total_pass + (
                             total_fail 
-                            ? ", fail " + total_fail 
-                            : ""
+                                ? ", fail " + total_fail 
+                                : ""
                         ) + (
                             total_lost 
-                            ? ", lost " + total_lost 
-                            : ""
+                                ? ", lost " + total_lost 
+                                : ""
                         ) + '\n';
                         go(on_result, {
                             pass: total_pass,
@@ -504,8 +504,8 @@ var JSC = (function () {
                     } catch (e) {
                         return verdict(
                             typeof e === 'boolean' 
-                            ? null 
-                            : e
+                                ? null 
+                                : e
                         );
                     }
                 }
@@ -645,8 +645,8 @@ var JSC = (function () {
                             keys.forEach(function (key, i) {
                                 result[key] = resolve((
                                     Array.isArray(values)
-                                    ? values[i % values.length]
-                                    : value
+                                        ? values[i % values.length]
+                                        : value
                                 ), i);
                             });
                             return result;
@@ -737,8 +737,8 @@ var JSC = (function () {
                     };
                 }
                 var array = arguments.length > 1
-                    ? slice.call(arguments, 0)
-                    : seq,
+                        ? slice.call(arguments, 0)
+                        : seq,
                     i = -1;
                 return function () {
                     i += 1;
