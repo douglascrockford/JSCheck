@@ -1,6 +1,6 @@
 // jscheck.js
 // Douglas Crockford
-// 2015-05-02
+// 2015-05-03
 
 // Public Domain
 
@@ -178,8 +178,8 @@ var JSC = (function () {
                             lines += " " + type + " [" + the_case.serial + "] " +
                                     the_case.classification + (
                                 JSON.stringify(the_case.args)
-                                        .replace(/^\[/, '(')
-                                        .replace(/\]$/, ')')
+                                    .replace(/^\[/, '(')
+                                    .replace(/\]$/, ')')
                             ) + '\n';
                         }
                     }
