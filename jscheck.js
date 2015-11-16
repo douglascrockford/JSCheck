@@ -1,6 +1,6 @@
 // jscheck.js
 // Douglas Crockford
-// 2015-05-03
+// 2015-11-16
 
 // Public Domain
 
@@ -313,7 +313,7 @@ var JSC = (function () {
 // is used by a case to report a verdict. The two uses are correlated by the
 // serial number.
 
-// If the cases object is gone, then late arriving lost result should be
+// If the cases object is gone, then all late arriving lost results should be
 // ignored.
 
                     var the_case;
@@ -366,7 +366,6 @@ var JSC = (function () {
                     }
                     return value;
                 }
-
 
 // Make an array of the claims to be checked.
 
@@ -789,3 +788,5 @@ var JSC = (function () {
     ];
     return jsc.clear();
 }());
+
+/*node module.exports = JSC;*/
