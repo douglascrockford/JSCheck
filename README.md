@@ -8,7 +8,7 @@
 
 **JSCheck** is a specification-driven testing tool. From a description of the properties of a system, function, or object, it will generate random test cases attempting to prove those properties, and then report its findings. That can be especially effective in managing the evolution of a program because it can show the conformance of new code to old code. It also provides an interesting level of self-documentation, because the executable specifications it relies on can provide a good view of the workings of a program.
 
-The **JSCheck** program is loaded from the `**JSCheck**.js` file. It produces a single global variable, `JSC`, which contains the **JSCheck** object.
+The **JSCheck** program is loaded from the `JSCheck.js` file. It produces a single global variable, `JSC`, which contains the **JSCheck** object.
 
 **JSCheck** is concerned with the specification and checking of _claims_. (We use the term _claim_ instead of _property_ to avoid confusion with JavaScript's use of _property_ to mean a member of an object.) To create a claim, call `JSC.claim`, passing in
 
@@ -25,11 +25,11 @@ The source is available at [https://github.com/douglascrockford/JSCheck](https:/
 
 To make a claim, you pass three or four components to `JSC.claim`, which will then return a function.
 
-#### name
+### name
 
 The name is descriptive text that will be used in making the report.
 
-#### predicate
+### predicate
 
 The predicate is a function that will return a verdict of `true` if the claim holds. The predicate will do something with the system in question, perhaps examining its result or examining the consistency of its data structures. If you are testing a set of functions that do encoding and decoding, the predicate can assert things like
 
@@ -45,7 +45,7 @@ The first parameter to the predicate will always be the `verdict` function. The 
 
 The remaining parameters must match the specifiers.
 
-#### signature
+### signature
 
 The signature is an array of specifiers that describe the types of the predicate's arguments. (From a procedural perspective, specifiers are generators, but JavaScript may get a new generator feature which is very different, so to slightly reduce confusion, we will take a declarative view.)
 
@@ -55,7 +55,7 @@ An array of specifiers can also contain constants (such as string, numbers, or o
 
 You can also [create your own specifiers](#specifiers).
 
-#### classifier
+### classifier
 
 You can optionally pass a classifier function as part of the claim. The classifier will receive the same arguments as the predicate (excluding the `verdict`). A classifier can do two things:
 
