@@ -1,8 +1,8 @@
 # JSCheck
 
-Douglas Crockford
-2013-07-22
-Public Domain
+* Douglas Crockford
+* 2013-07-22
+* Public Domain
 
 **JSCheck** is a testing tool for JavaScript. It was inspired by [QuickCheck](http://en.wikipedia.org/wiki/QuickCheck), a testing tool for Haskell developed by Koen Claessen and John Hughes of Chalmers University of Technology.
 
