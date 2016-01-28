@@ -1,6 +1,6 @@
 // jscheck.js
 // Douglas Crockford
-// 2016-01-13
+// 2016-01-27
 
 // Public Domain
 
@@ -89,9 +89,9 @@ JSC = (function () {
                 value = jsc.any();
             }
             return function () {
-                var i,
-                    n = resolve(dimension),
-                    result = [];
+                var i;
+                var n = resolve(dimension);
+                var result = [];
                 if (typeof n === 'number' && isFinite(n)) {
                     for (i = 0; i < n; i += 1) {
                         result.push(resolve(value, i));
@@ -385,9 +385,9 @@ JSC = (function () {
 // Process each claim.
 
             array.forEach(function (claim) {
-                var at_most = reps * 10,
-                    counter = 0,
-                    i;
+                var at_most = reps * 10;
+                var counter = 0;
+                var i;
                 integer_sq_2 = 9;
                 integer_sqrt = 1;
                 integer_prime = 1;
@@ -442,11 +442,11 @@ JSC = (function () {
 
             function claim(register) {
                 var args = signature.map(function (value) {
-                        return resolve(value);
-                    }),
-                    classification = '',
-                    serial,
-                    verdict;
+                    return resolve(value);
+                });
+                var classification = '';
+                var serial;
+                var verdict;
 
 // If an classifier function was provided, then call it to obtain a
 // classification. If the classification is not a string, then reject the
@@ -502,7 +502,7 @@ JSC = (function () {
 
                 } catch (e) {
                     return verdict(
-                        typeof e === 'boolean'
+                        (typeof e === 'boolean')
                             ? null
                             : e
                     );
@@ -547,8 +547,8 @@ JSC = (function () {
         integer: function (i, j) {
             if (i === undefined) {
                 return function () {
-                    var exclude,
-                        factor;
+                    var exclude;
+                    var factor;
                     do {
                         integer_prime += 2;
                         exclude = false;
@@ -616,12 +616,12 @@ JSC = (function () {
                 object = jsc.integer(1, 4);
             }
             return function () {
-                var gen,
-                    i,
-                    keys,
-                    result = {},
-                    string,
-                    values;
+                var gen;
+                var i;
+                var keys;
+                var result = {};
+                var string;
+                var values;
                 keys = resolve(object);
                 if (typeof keys === 'number') {
                     string = jsc.string();
@@ -643,7 +643,7 @@ JSC = (function () {
                     if (Array.isArray(keys)) {
                         keys.forEach(function (key, i) {
                             result[key] = resolve((
-                                Array.isArray(values)
+                                (Array.isArray(values))
                                     ? values[i % values.length]
                                     : value
                             ), i);
@@ -682,17 +682,18 @@ JSC = (function () {
                     };
                 }
                 if (array.length === weights.length) {
-                    var base = 0,
-                        n = array.length - 1,
-                        total = weights.reduce(function (a, b) {
-                            return a + b;
-                        }, 0),
-                        list = weights.map(function (value) {
-                            base += value / total;
-                            return base;
-                        });
+                    var base = 0;
+                    var n = array.length - 1;
+                    var total = weights.reduce(function (a, b) {
+                        return a + b;
+                    }, 0);
+                    var list = weights.map(function (value) {
+                        base += value / total;
+                        return base;
+                    });
                     return function () {
-                        var i, x = Math.random();
+                        var i;
+                        var x = Math.random();
                         for (i = 0; i < n; i += 1) {
                             if (x < list[i]) {
                                 return resolve(array[i]);
@@ -735,10 +736,10 @@ JSC = (function () {
                     return unique + 1;
                 };
             }
-            var array = arguments.length > 1
-                    ? slice.call(arguments, 0)
-                    : seq,
-                i = -1;
+            var array = (arguments.length > 1)
+                ? slice.call(arguments, 0)
+                : seq;
+            var i = -1;
             return function () {
                 i += 1;
                 if (i >= array.length) {
@@ -748,9 +749,9 @@ JSC = (function () {
             };
         },
         string: function string(value) {
-            var i,
-                length = arguments.length,
-                pieces = [];
+            var i;
+            var length = arguments.length;
+            var pieces = [];
 
             if (value === undefined || typeof value === 'boolean') {
                 return string(jsc.integer(10), jsc.character(value));
