@@ -1,6 +1,6 @@
 // jscheck.js
 // Douglas Crockford
-// 2016-02-07
+// 2017-06-12
 
 // Public Domain
 
@@ -175,27 +175,42 @@ JSC = (function () {
 
                 function generate_line(type, level) {
                     if (detail >= level) {
-                        lines += " " + type + " [" + the_case.serial + "] " +
-                                the_case.classification + (
-                            JSON.stringify(the_case.args)
-                                .replace(/^\[/, "(")
-                                .replace(/\]$/, ")")
-                        ) + "\n";
+                        lines += (
+                            " "
+                            + type
+                            + " [" + the_case.serial
+                            + "] "
+                            + the_case.classification
+                            + (
+                                JSON.stringify(the_case.args)
+                                    .replace(/^\[/, "(")
+                                    .replace(/\]$/, ")")
+                            )
+                            + "\n"
+                        );
                     }
                 }
 
 
                 function generate_class(key) {
                     if (detail >= 3 || class_fail[key] || class_lost[key]) {
-                        report += " " + key + " pass " + class_pass[key] + (
-                            class_fail[key]
-                                ? " fail " + class_fail[key]
-                                : ""
-                        ) + (
-                            class_lost[key]
-                                ? " lost " + class_lost[key]
-                                : ""
-                        ) + "\n";
+                        report += (
+                            " "
+                            + key
+                            + " pass "
+                            + class_pass[key]
+                            + (
+                                class_fail[key]
+                                    ? " fail " + class_fail[key]
+                                    : ""
+                            )
+                            + (
+                                class_lost[key]
+                                    ? " lost " + class_lost[key]
+                                    : ""
+                            )
+                            + "\n"
+                        );
                     }
                 }
 
@@ -209,23 +224,38 @@ JSC = (function () {
                         if (!next_case || (next_case.claim !== now_claim)) {
                             if (now_claim) {
                                 if (detail >= 1) {
-                                    report += the_case.name + ": " + (
-                                        nr_class
-                                            ? nr_class + " classifications, "
-                                            : ""
-                                    ) + (
-                                        nr_pass + nr_fail + nr_lost
-                                    ) + " cases tested, " + nr_pass + " pass" + (
-                                        nr_fail
-                                            ? ", " + nr_fail + " fail"
-                                            : ""
-                                    ) + (
-                                        nr_lost
-                                            ? ", " + nr_lost + " lost"
-                                            : ""
-                                    ) + "\n";
+                                    report += (
+                                        the_case.name + ": "
+                                        + (
+                                            nr_class
+                                                ? nr_class + " classifications, "
+                                                : ""
+                                        )
+                                        + (
+                                            nr_pass
+                                            + nr_fail
+                                            + nr_lost
+                                        )
+                                        + " cases tested, "
+                                        + nr_pass
+                                        + " pass"
+                                        + (
+                                            nr_fail
+                                                ? ", " + nr_fail + " fail"
+                                                : ""
+                                        )
+                                        + (
+                                            nr_lost
+                                                ? ", " + nr_lost + " lost"
+                                                : ""
+                                        )
+                                        + "\n"
+                                    );
                                     if (detail >= 2) {
-                                        Object.keys(class_pass).sort().forEach(generate_class);
+                                        Object
+                                            .keys(class_pass)
+                                            .sort()
+                                            .forEach(generate_class);
                                         report += lines;
                                     }
                                 }
@@ -248,8 +278,10 @@ JSC = (function () {
                         i += 1;
                         now_claim = the_case.claim;
                         the_class = the_case.classification;
-                        if (the_class &&
-                                typeof class_pass[the_class] !== "number") {
+                        if (
+                            the_class
+                            && typeof class_pass[the_class] !== "number"
+                        ) {
                             class_pass[the_class] = 0;
                             class_fail[the_class] = 0;
                             class_lost[the_class] = 0;
@@ -284,15 +316,21 @@ JSC = (function () {
                     if (typeof claim === "string" && detail >= 1) {
                         report = "Group " + claim + "\n\n" + report;
                     }
-                    report += "\nTotal pass " + total_pass + (
-                        total_fail
-                            ? ", fail " + total_fail
-                            : ""
-                    ) + (
-                        total_lost
-                            ? ", lost " + total_lost
-                            : ""
-                    ) + "\n";
+                    report += (
+                        "\nTotal pass "
+                        + total_pass
+                        + (
+                            total_fail
+                                ? ", fail " + total_fail
+                                : ""
+                        )
+                        + (
+                            total_lost
+                                ? ", lost " + total_lost
+                                : ""
+                        )
+                        + "\n"
+                    );
                     go(on_result, {
                         pass: total_pass,
                         fail: total_fail,
