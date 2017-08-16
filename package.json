@@ -1,0 +1,35 @@
+{
+  "name": "jscheck.js",
+  "version": "1.0.0",
+  "description": "Douglas Crockford's JSCheck port of Quviq's QuickCheck",
+  "main": "jscheck.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/douglascrockford/JSCheck.git"
+  },
+  "keywords": [
+    "jscheck",
+    "douglas",
+    "crockford",
+    "property",
+    "stochastic",
+    "testing",
+    "fuzz",
+    "stoch",
+    "quick",
+    "check",
+    "quickcheck",
+    "proper",
+    "triq",
+    "fuzzer"
+  ],
+  "author": "Douglas Crockford",
+  "license": "Public domain",
+  "bugs": {
+    "url": "https://github.com/douglascrockford/JSCheck/issues"
+  },
+  "homepage": "https://github.com/douglascrockford/JSCheck#readme"
+}
