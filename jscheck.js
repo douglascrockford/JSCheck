@@ -1,6 +1,6 @@
 // jscheck.js
 // Douglas Crockford
-// 2017-06-12
+// 2017-09-19
 
 // Public Domain
 
@@ -27,16 +27,32 @@ JSC = (function () {
     var any;            // The generator of any value
     var bottom = [false, null, undefined, "", 0, NaN];
     var detail = 3;     // The current level of report detail
-    var groups;          // The collection of named groups of claims
-    var integer_prime = 1;
-    var integer_sq_2 = 9;
-    var integer_sqrt = 1;
+    var groups;         // The collection of named groups of claims
     var now_group;      // The current group
     var on_fail;        // The function that receives the fail cases
     var on_lost;        // The function that receives the lost cases
     var on_pass;        // The function that receives the pass cases
     var on_report;      // The function that receives the reportage
     var on_result;      // The function that receives the summary
+    var primes = [
+        2, 3, 5, 7, 11, 13, 17, 19, 23, 29,
+        31, 37, 41, 43, 47, 53, 59, 61, 67, 71,
+        73, 79, 83, 89, 97, 101, 103, 107, 109, 113,
+        127, 131, 137, 139, 149, 151, 157, 163, 167, 173,
+        179, 181, 191, 193, 197, 199, 211, 223, 227, 229,
+        233, 239, 241, 251, 257, 263, 269, 271, 277, 281,
+        283, 293, 307, 311, 313, 317, 331, 337, 347, 349,
+        353, 359, 367, 373, 379, 383, 389, 397, 401, 409,
+        419, 421, 431, 433, 439, 443, 449, 457, 461, 463,
+        467, 479, 487, 491, 499, 503, 509, 521, 523, 541,
+        547, 557, 563, 569, 571, 577, 587, 593, 599, 601,
+        607, 613, 617, 619, 631, 641, 643, 647, 653, 659,
+        661, 673, 677, 683, 691, 701, 709, 719, 727, 733,
+        739, 743, 751, 757, 761, 769, 773, 787, 797, 809,
+        811, 821, 823, 827, 829, 839, 853, 857, 859, 863,
+        877, 881, 883, 887, 907, 911, 919, 929, 937, 941,
+        947, 953, 967, 971, 977, 983, 991, 997
+    ];
     var reject = {};
     var reps = 100;     // The number of cases to be tried per claim
     var slice = Array.prototype.slice;
@@ -117,7 +133,7 @@ JSC = (function () {
             if (j === undefined) {
                 if (i === undefined) {
                     i = 32;
-                    j = 127;
+                    j = 126;
                 } else {
                     return function () {
                         var value = resolve(i);
@@ -231,11 +247,7 @@ JSC = (function () {
                                                 ? nr_class + " classifications, "
                                                 : ""
                                         )
-                                        + (
-                                            nr_pass
-                                            + nr_fail
-                                            + nr_lost
-                                        )
+                                        + (nr_pass + nr_fail + nr_lost)
                                         + " cases tested, "
                                         + nr_pass
                                         + " pass"
@@ -336,8 +348,11 @@ JSC = (function () {
                         fail: total_fail,
                         lost: total_lost,
                         total: total_pass + total_fail + total_lost,
-                        ok: total_lost === 0 && total_fail === 0 &&
-                                total_pass > 0
+                        ok: (
+                            total_lost === 0
+                            && total_fail === 0
+                            && total_pass > 0
+                        )
                     });
                     go(on_report, report);
                 }
@@ -426,9 +441,6 @@ JSC = (function () {
                 var at_most = reps * 10;
                 var counter = 0;
                 var i;
-                integer_sq_2 = 9;
-                integer_sqrt = 1;
-                integer_prime = 1;
 
 // Loop over the generation and testing of cases.
 
@@ -582,28 +594,7 @@ JSC = (function () {
         },
         integer: function (i, j) {
             if (i === undefined) {
-                return function () {
-                    var exclude;
-                    var factor;
-                    do {
-                        integer_prime += 2;
-                        exclude = false;
-                        if (integer_prime >= integer_sq_2) {
-                            exclude = true;
-                            integer_sqrt += 2;
-                            integer_sq_2 = (integer_sqrt + 2) *
-                                    (integer_sqrt + 2);
-                        }
-                        for (
-                            factor = 3;
-                            !exclude && factor <= integer_sqrt;
-                            factor += 2
-                        ) {
-                            exclude = integer_prime % factor === 0;
-                        }
-                    } while (exclude);
-                    return integer_prime;
-                };
+                return jsc.one_of(primes);
             }
             i = integer(i, 1);
             j = integer(j, 1);
