@@ -104,7 +104,7 @@ p {
 <p>The remaining parameters must match the specifiers.</p>
 <h4>signature</h4>
 <p>The signature is an array of specifiers that describe the types of the predicate's arguments. (From a procedural perspective, specifiers are generators, but JavaScript may get a new generator feature which is very different, so to slightly reduce confusion, we will take a declarative view.)</p>
-<p><b>JSCheck</b> provides a small library of specifiers that you can use in your claim. For example, <code>JSC.integer(10)</code> declares that a parameter should be an integer between 1 and 10. <code>JSC.one_of(['Curly', 'Larry', 'Moe'])</code> declares that a parameter can be one of three strings. Some of the specifiers can be combined, so <code>JSC.array(JSC.integer(10), JSC.character('a', 'z'))</code> declares that a parameter can be an array of 1 to 10 lowercase letters.</p>
+<p><b>JSCheck</b> provides a small library of specifiers that you can use in your claim. For example, <code>JSC.integer(10)</code> declares that a parameter should be an integer between 1 and 10. <code>JSC.one_of(["Curly", "Larry", "Moe"])</code> declares that a parameter can be one of three strings. Some of the specifiers can be combined, so <code>JSC.array(JSC.integer(10), JSC.character("a", "z"))</code> declares that a parameter can be an array of 1 to 10 lowercase letters.</p>
 <p>An array of specifiers can also contain constants (such as string, numbers, or objects), so you can pass anything you need to into the predicate. If you need to pass in a function, then you must  wrap the function value with the <code>JSC.literal</code> specifier.</p>
 <p>You can also <a href="#specifiers">create your own specifiers</a>.</p>
 <h4>classifier</h4>
@@ -226,7 +226,7 @@ JSC.string(), true, Infinity, -Infinity])</code>.</p>
 <pre>JSC.array([
     JSC.integer(),
     JSC.number(100),
-    JSC.string(8, JSC.character('A', 'Z'))
+    JSC.string(8, JSC.character("A", "Z"))
 ])</pre>
 <p>can generate arrays like</p>
 <pre>[3,21.228644298389554,"TJFJPLQA"]
@@ -252,7 +252,7 @@ JSC.string(), true, Infinity, -Infinity])</code>.</p>
 <p>The <code>boolean</code> specifier will produce <code>true</code> and <code>false</code>. If the <i>bias</i> is 0.50, it will produce them with equal probability. A lower <i>bias</i> will produce more <code>false</code>s, and a higher <i>bias</i> will produce more <code>true</code>s.</p>
 <h4>
     JSC.character()</h4>
-<p>The <code>character</code> specifier generates a character. It is short for <code>JSC.character(32, 127)</code>. So, for example,</p>
+<p>The <code>character</code> specifier generates a character. It is short for <code>JSC.character(32, 126)</code>. So, for example,</p>
 <pre>JSC.character()</pre>
 <p>can generate strings like</p>
 <pre>"*"
@@ -267,7 +267,7 @@ JSC.string(), true, Infinity, -Infinity])</code>.</p>
     JSC.character(<i>min_character</i>, <i>max_character</i>)</h4>
 <p>The <code>character</code> specifier generates characters within a given range.</p>
 <h4>JSC.falsy()</h4>
-<p>The <code>falsy</code> specifier generates falsy values: <code>false</code>, <code>null</code>, <code>undefined</code>, <code>''</code>, <code>0</code>, and <code>NaN</code>.</p>
+<p>The <code>falsy</code> specifier generates falsy values: <code>false</code>, <code>null</code>, <code>undefined</code>, <code>""</code>, <code>0</code>, and <code>NaN</code>.</p>
 <h4>
     JSC.integer()</h4>
 <p>The <code>integer</code> specifier generates prime numbers<i></i>. Sometimes when testing formulas, it is useful to plug prime numbers into the variables.</p>
@@ -302,7 +302,7 @@ JSC.string(), true, Infinity, -Infinity])</code>.</p>
     <pre>JSC.object({
     left: JSC.integer(640),
     top: JSC.integer(480),
-    color: JSC.one_of(['black', 'white', 'red', 'blue', 'green', 'gray'])
+    color: JSC.one_of(["black", "white", "red", "blue", "green", "gray"])
 })</pre>
     <p>can generate objects like</p>
 <pre>{"left":104,"top":139,"color":"gray"}
@@ -313,7 +313,7 @@ JSC.string(), true, Infinity, -Infinity])</code>.</p>
     <h4>JSC.object(keys, values)</h4>
     <p>The <code>object</code> specifier takes an array of keys and produces an object using those keys. The values are taken from an array of values or a specifier. So for example,</p>
     <pre>JSC.object(
-    JSC.array(JSC.integer(3, 8), JSC.string(4, JSC.character('a', 'z'))),
+    JSC.array(JSC.integer(3, 8), JSC.string(4, JSC.character("a", "z"))),
     JSC.boolean()
 )</pre>
 <p>can generate objects like </p>
@@ -324,7 +324,7 @@ JSC.string(), true, Infinity, -Infinity])</code>.</p>
 ...</pre>
 <p>and</p>
 <pre>JSC.object(
-    ['x', 'y', 'z'],
+    ["x", "y", "z"],
     [JSC.integer(320), JSC.integer(240), JSC.integer(100)]
 )</pre>
 <p>can generate objects like</p>
@@ -408,10 +408,10 @@ JSC.string(<i>number</i>, <i>value</i>)</h4>
 ...</pre>
 <p>Any number of <i>number</i> <i>value</i> pairs can be provided, so</p>
 <pre>JSC.string(
-    1, JSC.character('A', 'Z'),
-    4, JSC.character('a', 'z'),
-    6, JSC.character('1', '9'),
-    1, JSC.one_of('!@#$%')
+    1, JSC.character("A", "Z"),
+    4, JSC.character("a", "z"),
+    6, JSC.character("1", "9"),
+    1, JSC.one_of("!@#$%")
 )</pre>
 <p>produces values like</p>
 <pre>&quot;Zsopx171765#&quot;
@@ -467,7 +467,7 @@ JSC.string(<i>number</i>, <i>value</i>)</h4>
     };
 }</pre>
 <p>The generator function that is returned will be stored in the signature array, and will be called for each value that needs to be generated. It will have access to the specifier's parameters. Its arguments might be other specifiers, so if an argument is a function, use the result of calling the function.</p>
-<pre>intermediate_value = typeof param1 === 'function'
+<pre>intermediate_value = (typeof param1 === "function")
     ? param1()
     : param1;</pre>
 <h2>Using <b>JSCheck</b></h2>
@@ -491,11 +491,11 @@ JSC.test(
     ],
     function (a, b) {
         if (a &lt; b) {
-            return 'lt';
+            return "lt";
         } else if (a === b) {
-            return 'eq';
+            return "eq";
         } else {
-            return 'gt';
+            return "gt";
         }
     }
 );</pre>
@@ -504,6 +504,6 @@ JSC.test(
 gt pass 0 fail 22
 lt pass 71
 </pre>
-<p>The predicate failed because 22 of the generated cases had an <code>a</code> that was larger than <code>b</code>. This is because <code>JSC.integer(10)</code> produces from the range 1 to 10, and <code>JSC.integer(20)</code> produces from the range 1 to 20. Sometimes the first value will be larger. This tells us that we should make the predicate more sophisticated, or we could have the specifier return <code>false</code> instead of <code>'gt'</code> to reject those cases.</p>
+<p>The predicate failed because 22 of the generated cases had an <code>a</code> that was larger than <code>b</code>. This is because <code>JSC.integer(10)</code> produces from the range 1 to 10, and <code>JSC.integer(20)</code> produces from the range 1 to 20. Sometimes the first value will be larger. This tells us that we should make the predicate more sophisticated, or we could have the specifier return <code>false</code> instead of <code>"gt"</code> to reject those cases.</p>
 </body>
 </html>
