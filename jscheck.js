@@ -1,12 +1,12 @@
 // jscheck.js
 // Douglas Crockford
-// 2017-09-19
+// 2017-09-20
 
 // Public Domain
 
 // http://www.jscheck.org/
 
-/*jslint for, node */
+/*jslint es6, for, node */
 
 /*property
     any, apply, args, array, boolean, call, charAt, charCodeAt, character,
@@ -18,79 +18,93 @@
     slice, sort, string, stringify, test, total, verdict
 */
 
+const bottom = [false, null, undefined, "", 0, NaN];
+const primes = [
+    2, 3, 5, 7, 11, 13, 17, 19, 23, 29,
+    31, 37, 41, 43, 47, 53, 59, 61, 67, 71,
+    73, 79, 83, 89, 97, 101, 103, 107, 109, 113,
+    127, 131, 137, 139, 149, 151, 157, 163, 167, 173,
+    179, 181, 191, 193, 197, 199, 211, 223, 227, 229,
+    233, 239, 241, 251, 257, 263, 269, 271, 277, 281,
+    283, 293, 307, 311, 313, 317, 331, 337, 347, 349,
+    353, 359, 367, 373, 379, 383, 389, 397, 401, 409,
+    419, 421, 431, 433, 439, 443, 449, 457, 461, 463,
+    467, 479, 487, 491, 499, 503, 509, 521, 523, 541,
+    547, 557, 563, 569, 571, 577, 587, 593, 599, 601,
+    607, 613, 617, 619, 631, 641, 643, 647, 653, 659,
+    661, 673, 677, 683, 691, 701, 709, 719, 727, 733,
+    739, 743, 751, 757, 761, 769, 773, 787, 797, 809,
+    811, 821, 823, 827, 829, 839, 853, 857, 859, 863,
+    877, 881, 883, 887, 907, 911, 919, 929, 937, 941,
+    947, 953, 967, 971, 977, 983, 991, 997
+];
 
-var JSC;
-JSC = (function () {
-    "use strict";
-
-    var all;            // The collection of all claims
-    var any;            // The generator of any value
-    var bottom = [false, null, undefined, "", 0, NaN];
-    var detail = 3;     // The current level of report detail
-    var groups;         // The collection of named groups of claims
-    var now_group;      // The current group
-    var on_fail;        // The function that receives the fail cases
-    var on_lost;        // The function that receives the lost cases
-    var on_pass;        // The function that receives the pass cases
-    var on_report;      // The function that receives the reportage
-    var on_result;      // The function that receives the summary
-    var primes = [
-        2, 3, 5, 7, 11, 13, 17, 19, 23, 29,
-        31, 37, 41, 43, 47, 53, 59, 61, 67, 71,
-        73, 79, 83, 89, 97, 101, 103, 107, 109, 113,
-        127, 131, 137, 139, 149, 151, 157, 163, 167, 173,
-        179, 181, 191, 193, 197, 199, 211, 223, 227, 229,
-        233, 239, 241, 251, 257, 263, 269, 271, 277, 281,
-        283, 293, 307, 311, 313, 317, 331, 337, 347, 349,
-        353, 359, 367, 373, 379, 383, 389, 397, 401, 409,
-        419, 421, 431, 433, 439, 443, 449, 457, 461, 463,
-        467, 479, 487, 491, 499, 503, 509, 521, 523, 541,
-        547, 557, 563, 569, 571, 577, 587, 593, 599, 601,
-        607, 613, 617, 619, 631, 641, 643, 647, 653, 659,
-        661, 673, 677, 683, 691, 701, 709, 719, 727, 733,
-        739, 743, 751, 757, 761, 769, 773, 787, 797, 809,
-        811, 821, 823, 827, 829, 839, 853, 857, 859, 863,
-        877, 881, 883, 887, 907, 911, 919, 929, 937, 941,
-        947, 953, 967, 971, 977, 983, 991, 997
-    ];
-    var reject = {};
-    var reps = 100;     // The number of cases to be tried per claim
-    var slice = Array.prototype.slice;
-    var unique;         // Case serial number
-
-    var resolve = function (value) {
+function resolve(value, ...rest) {
 
 // The resolve function takes a value. If that value is a function, then
-// it is called to produce the return value.
+// it is called to produce the return value. Otherwise, the value is the
+// return value.
 
-        return (typeof value === "function")
-            ? value.apply(null, slice.call(arguments, 1))
-            : value;
-    };
-    var integer = function (value, default_value) {
-        value = resolve(value);
-        return (typeof value === "number")
-            ? Math.floor(value)
-            : (typeof value === "string")
-                ? value.charCodeAt(0)
-                : default_value;
-    };
-    var go = function (func, value) {
+    return (typeof value === "function")
+        ? value(...rest)
+        : value;
+}
+
+function integer(value, default_value) {
+    value = resolve(value);
+    return (typeof value === "number")
+        ? Math.floor(value)
+        : (typeof value === "string")
+            ? value.charCodeAt(0)
+            : default_value;
+}
+
+function go(func, value) {
 
 // If value is truthy, then pass it to the func, ignoring any exceptions,
 // especially if func is not actually a function.
 
-        if (value) {
-            try {
-                return func(value);
-            } catch (ignore) {}
-        }
-    };
+    if (value) { ////////// why is this if needed???????????
+        try {
+            return func(value);
+        } catch (ignore) {}
+    }
+}
 
-    var jsc;
+export default function JSC() {
+    let all = [];       // The collection of all claims
+    let detail = 3;     // The current level of report detail
+    let groups = {};    // The collection of named groups of claims
+    let now_group = ""; // The current group
+    let on_fail;        // The function that receives the fail cases
+    let on_lost;        // The function that receives the lost cases
+    let on_pass;        // The function that receives the pass cases
+    let on_report;      // The function that receives the reportage
+    let on_result;      // The function that receives the summary
+    let reject = {};
+    let reps = 100;     // The number of cases to be tried per claim
+    let unique;         // Case serial number
+
+    let jsc;
     jsc = {
         any: function () {
-            return jsc.one_of(any);
+            return jsc.one_of([
+                jsc.integer(),
+                jsc.number(),
+                jsc.string(),
+                jsc.one_of([
+                    true,
+                    Infinity,
+                    -Infinity,
+                    false,
+                    null,
+                    undefined,
+                    "",
+                    0,
+                    1,
+                    NaN
+                ])
+            ]);
         },
         array: function array(dimension, value) {
             if (Array.isArray(dimension)) {
@@ -105,9 +119,9 @@ JSC = (function () {
                 value = jsc.any();
             }
             return function () {
-                var i;
-                var n = resolve(dimension);
-                var result = [];
+                let i;
+                const n = resolve(dimension);
+                const result = [];
                 if (typeof n === "number" && isFinite(n)) {
                     for (i = 0; i < n; i += 1) {
                         result.push(resolve(value, i));
@@ -122,6 +136,7 @@ JSC = (function () {
 // can be provided. If the bias is 0.25, then approximately a quarter of the
 // booleans produced will be true.
 
+            bias = bias(resolve);
             if (typeof bias !== "number") {
                 bias = 0.50;
             }
@@ -136,7 +151,7 @@ JSC = (function () {
                     j = 126;
                 } else {
                     return function () {
-                        var value = resolve(i);
+                        let value = resolve(i);
                         if (typeof value === "number") {
                             return String.fromCharCode(integer(i));
                         }
@@ -147,7 +162,7 @@ JSC = (function () {
                     };
                 }
             }
-            var ji = jsc.integer(i, j);
+            let ji = jsc.integer(i, j);
             return function () {
                 return String.fromCharCode(ji());
             };
@@ -159,42 +174,43 @@ JSC = (function () {
 // The results will be provided to callback functions that are registered
 // with the on_* methods.
 
-            var array;
-            var cases = {};
-            var complete = false;
-            var nr_pending = 0;
-            var serials = [];
-            var timeout_id;
+            let array;
+            let cases = {};
+            let complete = false;
+            let nr_pending = 0;
+            let serials = [];
+            let timeout_id;
 
             function generate_report() {
 
 // Go through all of the cases. Identify the lost cases [on_lost]. Summarize
 // the cases [on_result]. Produce a detailed report [on_report].
 
-                var class_fail;
-                var class_pass;
-                var class_lost;
-                var i = 0;
-                var lines = "";
-                var next_case;
-                var now_claim;
-                var nr_class = 0;
-                var nr_fail;
-                var nr_lost;
-                var nr_pass;
-                var report = "";
-                var the_case;
-                var the_class;
-                var total_fail = 0;
-                var total_lost = 0;
-                var total_pass = 0;
+                let class_fail;
+                let class_pass;
+                let class_lost;
+                let i = 0;
+                let lines = "";
+                let next_case;
+                let now_claim;
+                let nr_class = 0;
+                let nr_fail;
+                let nr_lost;
+                let nr_pass;
+                let report = "";
+                let the_case;
+                let the_class;
+                let total_fail = 0;
+                let total_lost = 0;
+                let total_pass = 0;
 
                 function generate_line(type, level) {
                     if (detail >= level) {
                         lines += (
                             " "
                             + type
-                            + " [" + the_case.serial
+                            + " ["
+                            + the_case.serial
                             + "] "
                             + the_case.classification
                             + (
@@ -216,12 +232,12 @@ JSC = (function () {
                             + " pass "
                             + class_pass[key]
                             + (
-                                class_fail[key]
+                                (class_fail[key])
                                     ? " fail " + class_fail[key]
                                     : ""
                             )
                             + (
-                                class_lost[key]
+                                (class_lost[key])
                                     ? " lost " + class_lost[key]
                                     : ""
                             )
@@ -369,7 +385,7 @@ JSC = (function () {
 // If the cases object is gone, then all late arriving lost results should be
 // ignored.
 
-                var the_case;
+                let the_case;
                 if (cases) {
                     the_case = cases[serial];
 
@@ -427,7 +443,7 @@ JSC = (function () {
             } else if (typeof claim === "string") {
                 array = groups[claim];
                 if (!Array.isArray(array)) {
-                    throw new Error("Bad group " + claim);
+                    throw "JSCheck Bad group " + claim;
                 }
             } else {
                 array = all;
@@ -438,9 +454,9 @@ JSC = (function () {
 // Process each claim.
 
             array.forEach(function (claim) {
-                var at_most = reps * 10;
-                var counter = 0;
-                var i;
+                let at_most = reps * 10;
+                let counter = 0;
+                let i;
 
 // Loop over the generation and testing of cases.
 
@@ -471,7 +487,7 @@ JSC = (function () {
 
 // A claim consists of
 //  a unique name which is displayed in the the report,
-//  a predicate function which exercises the claim, and that will return true
+//  a predicate function that exercises the claim, and that will return true
 //      if the claim holds,
 //  a function signature for the function expressed as an array of type
 //      specifiers or expressions,
@@ -479,31 +495,30 @@ JSC = (function () {
 //      property function, and returns a string for classifying the subsets, or
 //      false if the predicate should not be given this set of generated
 //      arguments.
+//  a boolean that prevents adding the claim.
 
 // A function is returned, which can be called by the check function.
 // That function will also be deposited in the set of all claims.
 // If a group name has been set, then the claim will also be deposited
 // in the group.
 
-            var group = now_group;
+            let group = now_group;
             if (!Array.isArray(signature)) {
                 signature = [signature];
             }
 
             function claim(register) {
-                var args = signature.map(function (value) {
-                    return resolve(value);
-                });
-                var classification = "";
-                var serial;
-                var verdict;
+                let args = signature.map(resolve);
+                let classification = "";
+                let serial;
+                let verdict;
 
-// If an classifier function was provided, then call it to obtain a
+// If a classifier function was provided, then use it to obtain a
 // classification. If the classification is not a string, then reject the
 // case.
 
                 if (typeof classifier === "function") {
-                    classification = classifier.apply(args, args);
+                    classification = classifier(...args);
                     if (typeof classification !== "string") {
                         return reject;
                     }
@@ -544,7 +559,7 @@ JSC = (function () {
 // of the case.
 
                 try {
-                    return predicate.apply(args, [verdict].concat(args));
+                    return predicate(verdict, ...args);
 
 // If the predicate throws, then this is a lost case. Use the exception
 // as the verdict, but don't allow the exception to be a boolean, because that
@@ -556,11 +571,11 @@ JSC = (function () {
                         : e);
                 }
             }
+
+// If this is not a standalone test, then add this claim to the current group
+// and the set of all claims.
+
             if (dont !== true) {
-
-// If there is a group active, then add this claim to the group.
-// (See the group method.)
-
                 if (group) {
                     if (!Array.isArray(groups[group])) {
                         groups[group] = [claim];
@@ -568,18 +583,9 @@ JSC = (function () {
                         groups[group].push(claim);
                     }
                 }
-
-// Add this claim to the set of all claims.
-
                 all.push(claim);
             }
             return claim;
-        },
-        clear: function () {
-            all = [];
-            groups = {};
-            now_group = "";
-            return jsc;
         },
         detail: function (level) {
             detail = level;
@@ -606,7 +612,7 @@ JSC = (function () {
                 return i;
             }
             if (i > j) {
-                var t = i;
+                let t = i;
                 i = j;
                 j = t;
             }
@@ -630,7 +636,7 @@ JSC = (function () {
                 return i;
             }
             if (i > j) {
-                var t = i;
+                let t = i;
                 i = j;
                 j = t;
             }
@@ -643,12 +649,12 @@ JSC = (function () {
                 object = jsc.integer(1, 4);
             }
             return function () {
-                var gen;
-                var i;
-                var keys;
-                var result = {};
-                var string;
-                var values;
+                let gen;
+                let i;
+                let keys;
+                let result = {};
+                let string;
+                let values;
                 keys = resolve(object);
                 if (typeof keys === "number") {
                     string = jsc.string();
@@ -709,18 +715,18 @@ JSC = (function () {
                     };
                 }
                 if (array.length === weights.length) {
-                    var base = 0;
-                    var n = array.length - 1;
-                    var total = weights.reduce(function (a, b) {
+                    let base = 0;
+                    let n = array.length - 1;
+                    let total = weights.reduce(function (a, b) {
                         return a + b;
                     }, 0);
-                    var list = weights.map(function (value) {
+                    let list = weights.map(function (value) {
                         base += value / total;
                         return base;
                     });
                     return function () {
-                        var i;
-                        var x = Math.random();
+                        let i;
+                        let x = Math.random();
                         for (i = 0; i < n; i += 1) {
                             if (x < list[i]) {
                                 return resolve(array[i]);
@@ -758,63 +764,56 @@ JSC = (function () {
         },
         resolve: resolve,
         sequence: function (seq) {
-            if (seq === undefined) {
-                return function () {
-                    return unique + 1;
-                };
+            seq = resolve(seq);
+            if (!Array.isArray(seq)) {
+                throw "JSCheck sequence";
             }
-            var array = (arguments.length > 1)
-                ? slice.call(arguments, 0)
-                : seq;
-            var i = -1;
+            let i = -1;
             return function () {
                 i += 1;
-                if (i >= array.length) {
+                if (i >= seq.length) {
                     i = 0;
                 }
-                return resolve(array[i]);
+                return resolve(seq[i]);
             };
         },
-        string: function string(value) {
-            var i;
-            var length = arguments.length;
-            var pieces = [];
+        string: function string(...rest) {
+            const length = rest.length;
 
-            if (value === undefined || typeof value === "boolean") {
-                return string(jsc.integer(10), jsc.character(value));
+            if (length === 0) {
+                return string(jsc.integer(10), jsc.character());
             }
 
             function pair(dimension, value) {
-                if (i + 1 === length) {
+                if (value === undefined) {
                     return function () {
-                        return JSON.stringify(resolve(dimension));
+                        return JSON.stringify(dimension);
                     };
                 }
-                var ja = jsc.array(dimension, value);
                 return function () {
-                    return ja().join("");
+                    return jsc.array(dimension, value)().join("");
                 };
             }
 
+            if (length <= 2) {
+                return pair(rest[0], rest[1]);
+            }
+
+            const pieces = {};
+            let i;
             for (i = 0; i < length; i += 2) {
-                pieces.push(pair(arguments[i], arguments[i + 1]));
+                pieces.push(pair(rest[i], rest[i + 1]));
             }
             return function () {
                 return pieces.map(resolve).join("");
             };
         },
         test: function (name, predicate, signature, classifier, ms) {
-            return JSC.check(
-                JSC.claim(name, predicate, signature, classifier, true),
+            return jsc.check(
+                jsc.claim(name, predicate, signature, classifier, true),
                 ms
             );
         }
     };
-    any = [
-        jsc.falsy(), jsc.integer(), jsc.number(),
-        jsc.string(), true, Infinity, -Infinity
-    ];
-    return jsc.clear();
-}());
-
-/*node module.exports = JSC;*/
+    return jsc;
+};
