@@ -1,6 +1,6 @@
 // jscheck.js
 // Douglas Crockford
-// 2017-09-20
+// 2017-09-25
 
 // Public Domain
 
@@ -136,7 +136,9 @@ export default function JSC() {
 // can be provided. If the bias is 0.25, then approximately a quarter of the
 // booleans produced will be true.
 
-            bias = bias(resolve);
+            if (typeof bias === "function") {
+                bias = bias();
+            }
             if (typeof bias !== "number") {
                 bias = 0.50;
             }
