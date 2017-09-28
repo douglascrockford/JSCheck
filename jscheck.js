@@ -1,6 +1,6 @@
 // jscheck.js
 // Douglas Crockford
-// 2017-09-25
+// 2017-09-27
 
 // Public Domain
 
@@ -296,6 +296,7 @@ export default function JSC() {
                             if (!next_case) {
                                 break;
                             }
+                            nr_class = 0;
                             nr_fail = 0;
                             nr_lost = 0;
                             nr_pass = 0;
