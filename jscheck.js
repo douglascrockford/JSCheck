@@ -1,12 +1,12 @@
 // jscheck.js
 // Douglas Crockford
-// 2017-09-27
+// 2017-12-12
 
 // Public Domain
 
 // http://www.jscheck.org/
 
-/*jslint es6, for, node */
+/*jslint for, node */
 
 /*property
     any, apply, args, array, boolean, call, charAt, charCodeAt, character,
@@ -64,7 +64,7 @@ function go(func, value) {
 // If value is truthy, then pass it to the func, ignoring any exceptions,
 // especially if func is not actually a function.
 
-    if (value) { ////////// why is this if needed???????????
+    if (value) {
         try {
             return func(value);
         } catch (ignore) {}
