@@ -1,6 +1,6 @@
 // jscheck.js
 // Douglas Crockford
-// 2017-12-12
+// 2018-01-08
 
 // Public Domain
 
@@ -9,13 +9,13 @@
 /*jslint for, node */
 
 /*property
-    any, apply, args, array, boolean, call, charAt, charCodeAt, character,
-    check, claim, classification, classifier, clear, concat, detail, exception,
-    fail, falsy, floor, forEach, fromCharCode, group, integer, isArray, join,
-    keys, length, literal, lost, map, name, number, object, ok, on_fail,
-    on_lost, on_pass, on_report, on_result, one_of, pass, predicate, prototype,
-    push, random, reduce, replace, reps, resolve, sequence, serial, signature,
-    slice, sort, string, stringify, test, total, verdict
+    any, args, array, boolean, charAt, charCodeAt, character, check, claim,
+    classification, classifier, detail, exception, fail, falsy, floor, forEach,
+    fromCharCode, group, integer, isArray, isFinite, join, keys, length,
+    literal, lost, map, name, number, object, ok, on_fail, on_lost, on_pass,
+    on_report, on_result, one_of, pass, predicate, push, random, reduce,
+    replace, reps, resolve, sequence, serial, signature, sort, string,
+    stringify, test, total, verdict
 */
 
 const bottom = [false, null, undefined, "", 0, NaN];
@@ -122,7 +122,7 @@ export default function JSC() {
                 let i;
                 const n = resolve(dimension);
                 const result = [];
-                if (typeof n === "number" && isFinite(n)) {
+                if (Number.isFinite(n)) {
                     for (i = 0; i < n; i += 1) {
                         result.push(resolve(value, i));
                     }
@@ -629,9 +629,9 @@ export default function JSC() {
             };
         },
         number: function (i, j) {
-            i = +i || 0;
-            j = +j;
-            if (!isFinite(j)) {
+            i = Number(i) || 0;
+            j = Number(j);
+            if (!Number.isFinite(j)) {
                 j = i || 1;
                 i = 0;
             }
@@ -790,7 +790,7 @@ export default function JSC() {
             function pair(dimension, value) {
                 if (value === undefined) {
                     return function () {
-                        return JSON.stringify(dimension);
+                        return JSON.stringify(resolve(dimension));
                     };
                 }
                 return function () {
