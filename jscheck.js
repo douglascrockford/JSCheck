@@ -802,7 +802,7 @@ export default function JSC() {
                 return pair(rest[0], rest[1]);
             }
 
-            const pieces = {};
+            const pieces = [];
             let i;
             for (i = 0; i < length; i += 2) {
                 pieces.push(pair(rest[i], rest[i + 1]));
