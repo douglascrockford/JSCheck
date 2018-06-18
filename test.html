@@ -1,0 +1,21 @@
+<html><body>
+<script type=module>
+
+import JSCheck from "./jscheck.js";
+const jsc = JSCheck();
+jsc.claim("String", function (verdict, string) {
+    return verdict(typeof string === "string");
+}, [jsc.string(jsc.integer(1000, 9999))]);
+
+jsc.detail(4);
+
+jsc.on_report(function (report) {
+    alert(report);
+});
+
+jsc.check();
+
+debugger;
+
+</script>
+</body></html>

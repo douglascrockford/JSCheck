@@ -1,6 +1,6 @@
 // jscheck.js
 // Douglas Crockford
-// 2018-04-01
+// 2018-06-15
 
 // Public Domain
 
@@ -262,7 +262,10 @@ export default function JSC() {
                                         the_case.name + ": "
                                         + (
                                             nr_class
-                                                ? nr_class + " classifications, "
+                                                ? (
+                                                    nr_class
+                                                    + " classifications, "
+                                                )
                                                 : ""
                                         )
                                         + (nr_pass + nr_fail + nr_lost)
@@ -318,8 +321,7 @@ export default function JSC() {
                             class_lost[the_class] = 0;
                             nr_class += 1;
                         }
-                        switch (the_case.pass) {
-                        case true:
+                        if (the_case.pass === true) {
                             if (the_class) {
                                 class_pass[the_class] += 1;
                             }
@@ -327,15 +329,13 @@ export default function JSC() {
                                 generate_line("Pass", 4);
                             }
                             nr_pass += 1;
-                            break;
-                        case false:
+                        } else if (the_case.pass === false) {
                             if (the_class) {
                                 class_fail[the_class] += 1;
                             }
                             generate_line("FAIL", 2);
                             nr_fail += 1;
-                            break;
-                        default:
+                        } else {
                             if (the_class) {
                                 class_lost[the_class] += 1;
                             }
