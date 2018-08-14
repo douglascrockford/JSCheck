@@ -1,6 +1,6 @@
 // jscheck.js
 // Douglas Crockford
-// 2018-08-13
+// 2018-08-14
 
 // Public Domain
 
@@ -9,14 +9,14 @@
 /*jslint for, node */
 
 /*property
-    any, args, array, boolean, cases, charAt, charCodeAt, character, check,
-    claim, class, classification, classifier, detail, fail, falsy, findIndex,
-    floor, forEach, freeze, fromCharCode, group, integer, isArray, isFinite,
-    join, key, keys, length, literal, losses, lost, map, name, nr_trials,
-    number, object, ok, on_fail, on_lost, on_pass, on_report, on_result, pass,
-    predicate, push, random, reduce, replace, report, sequence, serial,
-    signature, sort, split, string, stringify, summary, total, type, verdict,
-    wun_of
+    any, args, array, boolean, cases, charCodeAt, character, check,
+    claim, class, classification, classifier, codePointAt, detail, fail,
+    falsy, fill, findIndex, floor, forEach, freeze, fromCharPoint,
+    group, integer, isArray, join, key, keys, length, literal, losses,
+    lost, map, name, nr_trials, number, object, ok, on_fail, on_lost,
+    on_pass, on_report, on_result, pass, predicate, push, random,
+    reduce, replace, report, sequence, serial, signature, sort, split,
+    string, stringify, summary, total, type, verdict, wun_of
 */
 
 import fulfill from "./fulfill.js";
@@ -46,8 +46,9 @@ function boolean(bias = 0.5) {
 // parameter can be provided. If the bias is 0.25, then approximately a
 // quarter of the booleans produced will be true.
 
+    bias = resolve(bias);
     return function () {
-        return Math.random() < resolve(bias);
+        return Math.random() < bias;
     };
 }
 
@@ -74,14 +75,13 @@ function wun_of(array, weights) {
 // The wun_of specifier has two signatures.
 
 //  wun_of(array)
-//      Wun element is taken from the array and resolved. The elements
-//      are selected randomly with equal probabilities.
+//      Wun element is taken from the array and resolved.
+//      The elements are selected randomly with equal probabilities.
 
 // wun_of(array, weights)
-//      The two arguments are both arrays with equal lengths. The larger
-//      a weight, the more likely an element will be selected.
+//      The two arguments are both arrays with equal lengths.
+//      The larger a weight, the more likely an element will be selected.
 
-    array = array.split("");
     if (
         !Array.isArray(array)
         || array.length < 1
@@ -170,14 +170,15 @@ function integer_value(value, default_value) {
 }
 
 function integer(i, j) {
-    i = integer_value(i, 1);
     if (i === undefined) {
         return wun_of(primes);
     }
-    j = integer_value(j, 1);
+    i = integer_value(i, 1);
     if (j === undefined) {
         j = i;
         i = 1;
+    } else {
+        j = integer_value(j, 1);
     }
     if (i > j) {
         [i, j] = [j, i];
@@ -188,52 +189,42 @@ function integer(i, j) {
 }
 
 function character(i, j) {
-    if (j === undefined) {
-        if (i === undefined) {
-            i = 32;
-            j = 126;
-        } else {
-            return function () {
-                let value = resolve(i);
-                if (typeof value === "number") {
-                    return String.fromCharCode(integer(i));
-                }
-                if (typeof value === "string") {
-                    return value.charAt(0);
-                }
-                return "?";
-            };
-        }
+    if (i === undefined) {
+        return character(32, 126);
     }
-    let ji = integer(i, j);
+    if (typeof i === "string") {
+        return (
+            j === undefined
+            ? wun_of(i.split(""))
+            : character(i.codePointAt(0), j.codePointAt(0))
+        );
+    }
+    const ji = integer(i, j);
     return function () {
-        return String.fromCharCode(ji());
+        return String.fromCharPoint(ji());
     };
 }
 
-function array(dimension, value) {
-    if (Array.isArray(dimension)) {
+function array(first, value) {
+    if (Array.isArray(first)) {
         return function () {
-            return dimension.map(resolve);
+            return first.map(resolve);
         };
     }
-    if (dimension === undefined) {
-        dimension = integer(4);
+    if (first === undefined) {
+        first = integer(4);
     }
     if (value === undefined) {
         value = integer();
     }
     return function () {
-        let element_nr = 0;
-        const n = resolve(dimension);
-        const result = [];
-        if (Number.isFinite(n)) {
-            while (element_nr < n) {
-                result[element_nr] = resolve(value, element_nr);
-                element_nr += 1;
-            }
-        }
-        return result;
+        const dimension = resolve(first);
+        const result = new Array(dimension).fill(value);
+        return (
+            typeof value === "function"
+            ? result.map(resolve)
+            : result
+        );
     };
 }
 
@@ -574,19 +565,19 @@ export default Object.freeze(function JSC() {
             if (cases) {
                 let the_case = cases[serial];
 
-// If the serial number has not been seen, then register a new case. The
-// case is added to the cases collection. The serial number is added to
-// the serials collection. The number of pending cases is increased.
+// If the serial number has not been seen, then register a new case.
+// The case is added to the cases collection. The serial number is added
+// to the serials collection. The number of pending cases is increased.
 
                 if (the_case === undefined) {
+                    value.serial = serial;
                     cases[serial] = value;
                     serials.push(serial);
                     nr_pending += 1;
                 } else {
 
-// An existing case now gets its verdict. If it unexpectedly already has
-// a result, then throw an exception. Each case should have only wun
-// result.
+// An existing case now gets its verdict. If it unexpectedly already has a
+// result, then throw an exception. Each case should have only wun result.
 
                     if (
                         the_case.pass !== undefined
@@ -772,7 +763,7 @@ export default Object.freeze(function JSC() {
             on_result = func;
             return jsc;
         },
-        nr_trials: function (number) {
+        nr_trials: function (number = 100) {
             nr_trials = number;
             return jsc;
         },
