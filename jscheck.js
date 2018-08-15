@@ -9,15 +9,15 @@
 /*jslint for, node */
 
 /*property
-    any, args, array, boolean, cases, charCodeAt, character, check, claim,
-    class, classification, classifier, codePointAt, detail, fail, falsy, fill,
-    findIndex, floor, forEach, freeze, fromCodePoint, group, integer, isArray,
-    join, key, keys, length, literal, losses, lost, map, name, nr_trials,
-    number, object, ok, on_fail, on_lost, on_pass, on_report, on_result, pass,
-    predicate, push, random, reduce, replace, report, sequence, serial,
-    signature, sort, split, string, stringify, summary, total, type, verdict,
-    wun_of
- */
+    E, EPSILON, PI, any, args, array, boolean, cases, charCodeAt, character,
+    check, claim, class, classification, classifier, codePointAt, concat,
+    detail, fail, falsy, fill, findIndex, floor, forEach, freeze, fromCodePoint,
+    group, integer, isArray, isSafeInteger, join, key, keys, length, literal,
+    losses, lost, map, name, nr_trials, number, object, ok, on_fail, on_lost,
+    on_pass, on_report, on_result, pass, predicate, push, random, reduce,
+    replace, report, sequence, serial, signature, sort, split, string,
+    stringify, summary, total, type, verdict, wun_of
+*/
 
 import fulfill from "./fulfill.js";
 
