@@ -1,6 +1,6 @@
 // jscheck.js
 // Douglas Crockford
-// 2018-08-14
+// 2018-08-15
 
 // Public Domain
 
@@ -9,15 +9,15 @@
 /*jslint for, node */
 
 /*property
-    any, args, array, boolean, cases, charCodeAt, character, check,
-    claim, class, classification, classifier, codePointAt, detail, fail,
-    falsy, fill, findIndex, floor, forEach, freeze, fromCodePoint,
-    group, integer, isArray, join, key, keys, length, literal, losses,
-    lost, map, name, nr_trials, number, object, ok, on_fail, on_lost,
-    on_pass, on_report, on_result, pass, predicate, push, random,
-    reduce, replace, report, sequence, serial, signature, sort, split,
-    string, stringify, summary, total, type, verdict, wun_of
-*/
+    any, args, array, boolean, cases, charCodeAt, character, check, claim,
+    class, classification, classifier, codePointAt, detail, fail, falsy, fill,
+    findIndex, floor, forEach, freeze, fromCodePoint, group, integer, isArray,
+    join, key, keys, length, literal, losses, lost, map, name, nr_trials,
+    number, object, ok, on_fail, on_lost, on_pass, on_report, on_result, pass,
+    predicate, push, random, reduce, replace, report, sequence, serial,
+    signature, sort, split, string, stringify, summary, total, type, verdict,
+    wun_of
+ */
 
 import fulfill from "./fulfill.js";
 
@@ -87,9 +87,7 @@ function wun_of(array, weights) {
     }
     if (weights === undefined) {
         return function () {
-            return resolve(
-                array[Math.floor(Math.random() * array.length)]
-            );
+            return resolve(array[Math.floor(Math.random() * array.length)]);
         };
     }
     const total = weights.reduce(function (a, b) {
@@ -256,7 +254,7 @@ function string(...parameters) {
 }
 
 const misc = [
-    true, Infinity, -Infinity, false, null, undefined, "", 0, 1, NaN
+    true, Infinity, -Infinity, falsy(), Math.PI, Math.E, Number.EPSILON
 ];
 
 function any() {
@@ -303,14 +301,10 @@ function object(subject, value) {
     };
 }
 
-function go(func, value) {
-
-// If value is truthy, then pass it to the func,
-// ignoring any exceptions.
-
-    if (typeof func === "function" && value) {
+function go(callback, report) {
+    if (typeof callback === "function") {
         try {
-            return func(value);
+            return callback(report);
         } catch (ignore) {}
     }
 }
@@ -498,7 +492,11 @@ function crunch(detail, cases, serials) {
     }};
 }
 
-// We export a jsc constructor function. The check and claim functions are
+// The reject value is used to identify trials that should be rejected.
+
+const reject = Object.freeze({});
+
+// We export a jsc constructor function. The 'check' and 'claim' functions are
 // stateful, so they are created in here. I am freezing the constructor because
 // I enjoy freezing things.
 
@@ -511,7 +509,6 @@ export default Object.freeze(function JSC() {
     let on_pass;
     let on_report;
     let on_result;
-    let reject = {};
     let nr_trials = 100;    // The number of cases to be tried per claim
     let unique;             // Case serial number
 
@@ -519,9 +516,8 @@ export default Object.freeze(function JSC() {
 
     function check(time_limit) {
 
-// The check function checks all claims. It returns the jsc object.
-// The results will be provided to callback functions that are
-// registered with the on_* methods.
+// The check function checks all claims. The results will be provided to
+// callback functions that are registered with the on_* methods.
 
         let cases = {};
         let all_started = false;
@@ -592,8 +588,8 @@ export default Object.freeze(function JSC() {
                         go(on_fail, the_case);
                     }
 
-// This case is no longer pending. If all of the cases have been
-// generated and given results, then generate the result.
+// This case is no longer pending. If all of the cases have been generated and
+// given results, then generate the result.
 
                     nr_pending -= 1;
                     if (nr_pending <= 0 && all_started) {
@@ -636,23 +632,22 @@ export default Object.freeze(function JSC() {
         } else if (time_limit > 0) {
             timeout_id = setTimeout(finish, time_limit);
         }
-        return jsc;
     }
 
     function claim(name, predicate, signature, classifier) {
 
 // A claim consists of
-//  A descriptive name which is displayed in the report.
-//  A predicate function that exercises the claim, and that will return true
-//      if the claim holds.
-//  A function signature for the function expressed as an array of type
-//      specifiers or expressions.
-//  An optional classifier function, which takes the same arguments as the
-//      property function, and returns a string for classifying the subsets,
-//      or false if the predicate should not be given this set of generated
-//      arguments.
+//      A descriptive name that is displayed in the report.
+//      A predicate function that exercises the claim, and that will return true
+//          if the claim holds.
+//      A function signature array that specifies the types and values for the
+//          predicate function.
+//      An optional classifier function that takes values produced by the
+//          signature and that returns a string for classifying the trials,
+//          or false if the predicate should not be given this set of generated
+//          arguments.
 
-// A function be deposited in the set of all claims.
+// A function will be deposited in the set of all claims.
 
         let group = current_group;
         if (!Array.isArray(signature)) {
@@ -668,14 +663,14 @@ export default Object.freeze(function JSC() {
 // If a classifier function was provided, then use it to obtain a
 // classification. If the classification is not a string, then reject the case.
 
-            if (typeof classifier === "function") {
+            if (classifier !== undefined) {
                 classification = classifier(...args);
-                if (typeof classification !== "string") {
+                if (classification === undefined) {
                     return reject;
                 }
             }
 
-// Create a unique serial number for this case.
+// Create a unique serial number for this trial.
 
             unique += 1;
             serial = unique;
@@ -686,7 +681,7 @@ export default Object.freeze(function JSC() {
                 return register(serial, result);
             };
 
-// Register an object that represents this case.
+// Register an object that represents this trial.
 
             register(serial, {
                 args,
@@ -708,12 +703,11 @@ export default Object.freeze(function JSC() {
             return predicate(verdict, ...args);
         }
         all_claims.push(the_claim);
-        return jsc;
     }
 
     jsc = Object.freeze({
 
-// Specifiers.
+// The Specifiers.
 
         any,
         array,
@@ -728,42 +722,34 @@ export default Object.freeze(function JSC() {
         sequence,
         string,
 
-// Configurators.
+// The Configurators.
 
         detail: function (level) {
             detail = level;
-            return jsc;
         },
         group: function (name = "") {
             current_group = name;
-            return jsc;
         },
         on_fail: function (func) {
             on_fail = func;
-            return jsc;
         },
         on_lost: function (func) {
             on_lost = func;
-            return jsc;
         },
         on_pass: function (func) {
             on_pass = func;
-            return jsc;
         },
         on_report: function (func) {
             on_report = func;
-            return jsc;
         },
         on_result: function (func) {
             on_result = func;
-            return jsc;
         },
         nr_trials: function (number = 100) {
             nr_trials = number;
-            return jsc;
         },
 
-// The main functions.
+// The Main Functions.
 
         check,
         claim
