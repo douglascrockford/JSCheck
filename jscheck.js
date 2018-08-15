@@ -11,7 +11,7 @@
 /*property
     any, args, array, boolean, cases, charCodeAt, character, check,
     claim, class, classification, classifier, codePointAt, detail, fail,
-    falsy, fill, findIndex, floor, forEach, freeze, fromCharPoint,
+    falsy, fill, findIndex, floor, forEach, freeze, fromCodePoint,
     group, integer, isArray, join, key, keys, length, literal, losses,
     lost, map, name, nr_trials, number, object, ok, on_fail, on_lost,
     on_pass, on_report, on_result, pass, predicate, push, random,
@@ -23,9 +23,8 @@ import fulfill from "./fulfill.js";
 
 function resolve(value, ...rest) {
 
-// The resolve function takes a value. If that value is a function, then
-// it is called to produce the return value. Otherwise, the value is the
-// return value.
+// The resolve function takes a value. If that value is a function, then it is
+// called to produce the return value. Otherwise, the value is the return value.
 
     return (
         typeof value === "function"
@@ -52,21 +51,15 @@ function boolean(bias = 0.5) {
     };
 }
 
-function number(from, to) {
+function number(from = 1, to = 0) {
     from = Number(resolve(from));
     to = Number(resolve(to));
-    if (from === undefined) {
-        from = 0;
-    }
-    if (to === undefined) {
-        to = from || 1;
-        from = 0;
-    }
     if (from > to) {
         [from, to] = [to, from];
     }
+    const difference = to - from;
     return function () {
-        return Math.random() * (to - from) + from;
+        return Math.random() * difference + from;
     };
 }
 
@@ -201,7 +194,7 @@ function character(i, j) {
     }
     const ji = integer(i, j);
     return function () {
-        return String.fromCharPoint(ji());
+        return String.fromCodePoint(ji());
     };
 }
 
@@ -228,35 +221,37 @@ function array(first, value) {
     };
 }
 
-function string(...rest) {
-    const length = rest.length;
+function string(...parameters) {
+    const length = parameters.length;
 
     if (length === 0) {
         return string(integer(10), character());
     }
-
-    function pair(dimension, value) {
-        if (value === undefined) {
-            return function () {
-                return JSON.stringify(resolve(dimension));
-            };
-        }
-        return function () {
-            return array(dimension, value)().join("");
-        };
-    }
-
-    if (length <= 2) {
-        return pair(rest[0], rest[1]);
-    }
-
-    const pieces = [];
-    let i;
-    for (i = 0; i < length; i += 2) {
-        pieces.push(pair(rest[i], rest[i + 1]));
-    }
     return function () {
-        return pieces.map(resolve).join("");
+        let pieces = [];
+        let parameter_nr = 0;
+        let value;
+        while (true) {
+            value = resolve(parameters[parameter_nr]);
+            parameter_nr += 1;
+            if (value === undefined) {
+                break;
+            }
+            if (
+                Number.isSafeInteger(value)
+                && value >= 0
+                && parameters[parameter_nr] !== undefined
+            ) {
+                pieces = pieces.concat(
+                    new Array(value).fill(parameters[parameter_nr]).map(resolve)
+                );
+                parameter_nr += 1;
+            } else {
+                pieces.push(String(value));
+            }
+
+        }
+        return pieces.join("");
     };
 }
 
