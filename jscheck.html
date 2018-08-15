@@ -76,12 +76,12 @@ p {
 <body>
 <h1>JSCheck</h1>
 <p>Douglas Crockford<br>
-    2018-07-29
+    2018-08-15
 </p>
 <p><b>JSCheck</b> is a testing tool for JavaScript. It was inspired by <a href="http://en.wikipedia.org/wiki/QuickCheck">QuickCheck</a>, a testing tool for Haskell developed by Koen Claessen and John Hughes of Chalmers University of Technology.</p>
-<p><b>JSCheck</b> is a specification-driven testing tool. From a description of the properties of a system, function, or object, it will generate random test cases attempting to prove those properties, and then report its findings. That can be especially effective in managing the evolution of a program because it can show the conformance of new code to old code. It also provides an interesting level of self-documentation, because the executable specifications it relies on can provide a good view of the workings of a program.</p>
+<p><b>JSCheck</b> is a specification-driven testing tool. From a description of the properties of a system, function, or object, it will generate random test cases attempting to disprove those properties, and then report its findings. That can be especially effective in managing the evolution of a program because it can show the conformance of new code to old code. It also provides an interesting level of self-documentation, because the executable specifications it relies on can provide a good view of the workings of a program.</p>
 <p>The <b>JSCheck</b> module is loaded from the <code><b>jscheck</b>.js</code> file. It produces a single function that is used to construct a <code>jsc</code> object.</p>
-<pre>import JSCheck from &quot;./jscheck.js&quot;
+<pre>import JSCheck from &quot;./jscheck.js&quot;;
 let jsc = JSCheck();</pre>
 <p>The source is available at  <a href="https://github.com/douglascrockford/JSCheck">https://github.com/douglascrockford/jscheck</a>. This page is available at <a href="http://www.JSCheck.org/">http://www.jscheck.org/</a>.</p>
 <h2>Making a Claim</h2>
@@ -101,14 +101,14 @@ cases generated per claim with the <code>jsc.nr_trials</code> function.</p>
 <p>The remaining parameters must match the specifiers.</p>
 <h4>signature</h4>
 <p>The signature is an array of specifiers that describe the types of the predicate's arguments. (From a procedural perspective, specifiers are generators, but are quite different from  ES6 <code>function*</code>, so to slightly reduce confusion, we will take a declarative view.)</p>
-<p><b>JSCheck</b> provides a small library of specifiers that you can use in your claim. For example, <code>jsc.integer(10)</code> declares that a parameter should be an integer between 1 and 10. <code>jsc.one_of(["Curly", "Larry", "Moe"])</code> declares that a parameter can be one of three strings. Some of the specifiers can be combined, so <code>jsc.array(jsc.integer(10), jsc.character("a", "z"))</code> declares that a parameter can be an array of 1 to 10 lowercase letters.</p>
+<p><b>JSCheck</b> provides a small library of specifiers that you can use in your claim. For example, <code>jsc.integer(10)</code> declares that a parameter should be an integer between 1 and 10. <code>jsc.wun_of(["Curly", "Larry", "Moe"])</code> declares that a parameter can be one of three strings. Some of the specifiers can be combined, so <code>jsc.array(jsc.integer(10), jsc.character("a", "z"))</code> declares that a parameter can be an array of 1 to 10 lowercase letters.</p>
 <p>An array of specifiers can also contain constants (such as string, numbers, or objects), so you can pass anything you need to into the predicate. If you need to pass in a function, then you must  wrap the function value with the <code>jsc.literal</code> specifier.</p>
 <p>You can also <a href="#specifiers">create your own specifiers</a>.</p>
 <h4>classifier</h4>
 <p>You can optionally pass a classifier function as part of the claim. The classifier will receive the same arguments as the predicate (excluding the <code>verdict</code>). A classifier can do two things:</p>
 <ol>
     <li>It can examine the arguments, and return a string that classifies the case. The string is descriptive. The report can include a summary showing the number  of  cases belonging to each classification. This can be used to identify the classes that are trivial or problematic, or to help analyze the results.</li>
-    <li>Since the cases are being generated randomly,  some cases might not be meaningful or useful. The classifier can have a case rejected by returning <code>false</code>. <b>JSCheck</b> will attempt to generate another case to replace it. It is recommended that the classifier reject fewer than 90% of the cases. If you are accepting less than 10% of the potential cases, then you should probably reformulate your claim or create a specialized specifier.</li>
+    <li>Since the cases are being generated randomly,  some cases might not be meaningful or useful. The classifier can have a case rejected by returning <code>undefined</code>. <b>JSCheck</b> will attempt to generate another case to replace it. It is recommended that the classifier reject fewer than 90% of the cases. If you are accepting less than 10% of the potential cases, then you should probably reformulate your claim or create a specialized specifier.</li>
 </ol>
 <h2>The <b>JSCheck</b> functions</h2>
 <p>A <code>jsc</code> object contains several functions.</p>
@@ -193,32 +193,21 @@ cases generated per claim with the <code>jsc.nr_trials</code> function.</p>
 <p>At the conclusion of the check, all of the claims will be released.</p>
 <h4>jsc.claim(<i>name</i>, <i>predicate</i>, <i>signature</i>, <i>classifier</i>)</h4>
 <p>The <code>claim</code> function takes a <i>name</i>, a <i>predicate</i> function, and an array of <i>specifiers</i> and files a claim.</p>
-<p>The <i>predicate</i> function must <code>return verdict(true)</code> if a case passes, and <code>return verdict(false)</code> if the case fails. It will take a list of arguments that is generated by the array of <i>specifiers</i>. The array of <i>specifiers</i> looks like a type declaration for the <i>predicate</i> function.</p>
+<p>The <i>predicate</i> function must <code>return verdict(true)</code> if a case passes, and <code>return verdict(false)</code> if the case fails. It will take a list of arguments that is generated by the array of <i>specifiers</i>. </p>
 <p>The <i>signature</i> is an array of <i>specifiers</i>. The <i>signature</i> looks like a type declaration for the <i>predicate</i> function. </p>
-<p>The <i>classifier</i> function is called before each call of the <i>predicate</i> function. It gets a chance to determine if the random values in its arguments will be a reasonable case. It can return <code>false</code> if the case should be rejected and a new case generated to replace it. The <i>classifier</i> function can instead return a descriptive string that describes the case. These can be counted and displayed in the report.</p>
-<p>It returns the <code>jsc</code> object.</p>
+<p>The <i>classifier</i> function is called before each call of the <i>predicate</i> function. It gets a chance to determine if the random values in its arguments will be a reasonable trial. It can return <code>undefined</code> if the trial should be rejected and a new trial generated to replace it. The <i>classifier</i> function can instead return a descriptive string that describes the case. These can be counted and displayed in the report.</p>
 <h4>jsc.group(<i>name</i>)</h4>
-<p>The <code>group</code> function is used to specify a group <i>name</i> that will be attached to all new claims. </p>
-<p>It returns the <code>jsc</code> object.</p>
+<p>The <code>group</code> function is used to specify a group <i>name</i> that will be attached to all new claims. The group name is included in the report.</p>
 <h3>Specifiers:</h3>
 <p>A specifier is a function that returns a function that can generate values of a particular type. The specifiers are used in building the signature that is used to construct a claim.</p>
 <h4>jsc.any()</h4>
 <p>The <code>any</code> specifier returns any random JavaScript value. It is short for</p>
-<pre>jsc.one_of([
+<pre>jsc.wun_of([
     jsc.integer(),
     jsc.number(),
     jsc.string(),
-    jsc.one_of([
-        true,
-        Infinity,
-        -Infinity,
-        false,
-        null,
-        undefined,
-        "",
-        0,
-        1,
-        NaN
+    jsc.wun_of([
+        true, Infinity, -Infinity, falsy(), Math.PI, Math.E, Number.EPSILON
     ])
 ])</pre>
 <p>It can produce values such as</p>
@@ -321,7 +310,7 @@ cases generated per claim with the <code>jsc.nr_trials</code> function.</p>
     <pre>jsc.object({
     left: jsc.integer(640),
     top: jsc.integer(480),
-    color: jsc.one_of(["black", "white", "red", "blue", "green", "gray"])
+    color: jsc.wun_of(["black", "white", "red", "blue", "green", "gray"])
 })</pre>
     <p>can generate objects like</p>
 <pre>{"left": 104, "top": 139, "color": "gray"}
@@ -352,9 +341,9 @@ cases generated per claim with the <code>jsc.nr_trials</code> function.</p>
 {"x": 35, "y": 124, "z": 60}
 {"x": 13, "y": 41, "z": 63}
 ...</pre>
-<h4>jsc.one_of(<i>array</i>)</h4>
-<p>The <code>one_of</code> specifier takes an array of specifiers, and selects values from the <i>array</i> with equal probability. So, for example</p>
-<pre>jsc.one_of([
+<h4>jsc.wun_of(<i>array</i>)</h4>
+<p>The <code>wun_of</code> specifier takes an array of specifiers, and selects values from the <i>array</i> with equal probability. So, for example</p>
+<pre>jsc.wun_of([
     jsc.number(),
     jsc.boolean(),
     null
@@ -366,9 +355,9 @@ null
 false
 ...</pre>
 <h4>
-    jsc.one_of(<i>array</i>, <i>weights</i>)</h4>
-<p>The <code>one_of</code> specifier takes an <i>array</i> of specifiers and an array of <i>weights</i>. The <i>weights</i> are used to adjust the probabilities. So for example,</p>
-<pre>jsc.one_of(
+    jsc.wun_of(<i>array</i>, <i>weights</i>)</h4>
+<p>The <code>wun_of</code> specifier takes an <i>array</i> of specifiers and an array of <i>weights</i>. The <i>weights</i> are used to adjust the probabilities. So for example,</p>
+<pre>jsc.wun_of(
    [1,2,3,4,5,6,7,8,9,10],
    [1,2,3,4,5,6,7,8,9,10]
 )</pre>
@@ -379,9 +368,9 @@ produces values like
 10
 ...</pre>
 <h4>
-    jsc.one_of(<i>string</i>)</h4>
-<p>The <code>one_of</code> specifier takes a string, and selects one of its characters. So for example,</p>
-<pre>jsc.string(8, jsc.one_of(&quot;abcdefgABCDEFG_$&quot;))</pre>
+    jsc.wun_of(<i>string</i>)</h4>
+<p>The <code>wun_of</code> specifier takes a string, and selects one of its characters. So for example,</p>
+<pre>jsc.string(8, jsc.wun_of(&quot;abcdefgABCDEFG_$&quot;))</pre>
 <p>produces values like</p>
 <pre>"cdgbdB_D"
 "$fGE_BAB"
@@ -407,7 +396,7 @@ produces values like
 &quot;tlt^[ ui`V&quot;
 ...</pre>
 <h4>jsc.string(<i>value</i>)</h4>
-<p>The <code>string</code> specifier generates the stringification of the <i>value</i>, using <code>JSON.stringify</code>. So for example,</p>
+<p>The <code>string</code> specifier generates the stringification of the <i>value</i>, using <code>String</code>. So for example,</p>
 <pre>jsc.string(jsc.integer(1000, 9999))</pre>
 <p>produces values like</p>
 <pre>"4791"
@@ -418,7 +407,7 @@ produces values like
 <h4>
 jsc.string(<i>number</i>, <i>value</i>)</h4>
 <p>The <code>string</code> specifier generates strings by joining some number of values. So for example,</p>
-<pre>jsc.string(jsc.integer(1, 8), jsc.one_of("aeiou")))</pre>
+<pre>jsc.string(jsc.integer(1, 8), jsc.wun_of("aeiou")))</pre>
 <p>produces values like</p>
 <pre>"ieauae"
 "uo"
@@ -427,16 +416,16 @@ jsc.string(<i>number</i>, <i>value</i>)</h4>
 ...</pre>
 <p>Any number of <i>number</i> <i>value</i> pairs can be provided, so</p>
 <pre>jsc.string(
-    1, jsc.character("A", "Z"),
+    jsc.character("A", "Z"),
     4, jsc.character("a", "z"),
     6, jsc.character("1", "9"),
-    1, jsc.one_of("!@#$%")
+    jsc.wun_of("!@#$%")
 )</pre>
 <p>produces values like</p>
 <pre>&quot;Zsopx171765#&quot;
 &quot;Nfafw851294%&quot;
 &quot;Gtyef393138%&quot;
-&quot;Lrxav768561%&quot;
+&quot;Lrxav768561!&quot;
 ...</pre>
 <h2 id="specifiers">Writing specifiers</h2>
 <p><b>JSCheck</b> provides a small set of specifiers that can be combined in many ways. For some purposes, you may need to create your own specifiers. It is easy to do. A specifier is a function that returns a function. </p>
@@ -492,6 +481,6 @@ jsc.check();</pre>
 gt pass 0 fail 22
 lt pass 71
 </pre>
-<p>The predicate failed because 22 of the generated cases had an <code>a</code> that was larger than <code>b</code>. This is because <code>jsc.integer(10)</code> produces from the range 1 to 10, and <code>jsc.integer(20)</code> produces from the range 1 to 20. Sometimes the first value will be larger. This tells us that we should make the predicate more sophisticated, or we could have the classifier return <code>false</code> instead of <code>"gt"</code> to reject those cases.</p>
+<p>The predicate failed because 22 of the generated cases had an <code>a</code> that was larger than <code>b</code>. This is because <code>jsc.integer(10)</code> produces from the range 1 to 10, and <code>jsc.integer(20)</code> produces from the range 1 to 20. Sometimes the first value will be larger. This tells us that we should make the predicate more sophisticated, or we could have the classifier return <code>undefined</code> instead of <code>"gt"</code> to reject those cases.</p>
 </body>
 </html>
