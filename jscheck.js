@@ -518,8 +518,8 @@ export default Object.freeze(function JSC() {
             } catch (ignore) {}
         }
 
-// The check function checks all claims. The results will be provided to
-// callback functions that are registered with the on_* methods.
+// The check function checks all claims.
+// The results will be provided to callback functions.
 
         let cases = {};
         let all_started = false;
