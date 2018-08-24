@@ -1,6 +1,6 @@
 // jscheck.js
 // Douglas Crockford
-// 2018-08-15
+// 2018-08-24
 
 // Public Domain
 
@@ -16,7 +16,7 @@
     losses, lost, map, name, nr_trials, number, object, ok, on_fail, on_lost,
     on_pass, on_report, on_result, pass, predicate, push, random, reduce,
     replace, report, sequence, serial, signature, sort, split, string,
-    stringify, summary, total, type, verdict, wun_of
+    stringify, summary, time_limit, total, type, verdict, wun_of
 */
 
 import fulfill from "./fulfill.js";
@@ -301,19 +301,11 @@ function object(subject, value) {
     };
 }
 
-function go(callback, report) {
-    if (typeof callback === "function") {
-        try {
-            return callback(report);
-        } catch (ignore) {}
-    }
-}
-
 const ctp = "{name}: {class}{cases} cases tested, {pass} pass{fail}{lost}\n";
 
 function crunch(detail, cases, serials) {
 
-// Go through all of the cases. Gather the lost cases.
+// Go thru all of the cases. Gather the lost cases.
 // Produce a detailed report and a summary.
 
     let class_fail;
@@ -501,20 +493,30 @@ const reject = Object.freeze({});
 // I enjoy freezing things.
 
 export default Object.freeze(function JSC() {
+    let the_configuration;
     let all_claims = [];
-    let current_group = "";
-    let detail = 3;         // The current level of report detail
-    let on_fail;
-    let on_lost;
-    let on_pass;
-    let on_report;
-    let on_result;
-    let nr_trials = 100;    // The number of cases to be tried per claim
     let unique;             // Case serial number
 
     let jsc;
 
-    function check(time_limit) {
+    function check(configuration) {
+        the_configuration = configuration;
+        let the_claims = all_claims;
+        all_claims = [];
+        let nr_trials = (
+            the_configuration.nr_trials === undefined
+            ? 100
+            : the_configuration.nr_trials
+        );
+
+        function go(on, report) {
+
+// Invoke a callback function.
+
+            try {
+                return the_configuration[on](report);
+            } catch (ignore) {}
+        }
 
 // The check function checks all claims. The results will be provided to
 // callback functions that are registered with the on_* methods.
@@ -533,22 +535,28 @@ export default Object.freeze(function JSC() {
                 losses,
                 summary,
                 report
-            } = crunch(detail, cases, serials);
+            } = crunch(
+                (
+                    the_configuration.detail === undefined
+                    ? 3
+                    : the_configuration.detail
+                ),
+                cases,
+                serials
+            );
             losses.forEach(function (the_case) {
-                go(on_lost, the_case);
+                go("on_lost", the_case);
             });
-            go(on_result, summary);
-            go(on_report, report);
-            all_claims = [];
+            go("on_result", summary);
+            go("on_report", report);
             cases = undefined;
-            current_group = "";
         }
 
         function register(serial, value) {
 
-// This function is used by a claim function to register a new case, and
-// it is used by a case to report a verdict. The two uses are correlated
-// by the serial number.
+// This function is used by a claim function to register a new case,
+// and it is used by a case to report a verdict. The two uses are
+// correlated by the serial number.
 
 // If the cases object is gone, then all late arriving lost results
 // should be ignored.
@@ -582,10 +590,10 @@ export default Object.freeze(function JSC() {
 
                     if (value === true) {
                         the_case.pass = true;
-                        go(on_pass, the_case);
+                        go("on_pass", the_case);
                     } else {
                         the_case.pass = false;
-                        go(on_fail, the_case);
+                        go("on_fail", the_case);
                     }
 
 // This case is no longer pending. If all of the cases have been generated and
@@ -603,7 +611,7 @@ export default Object.freeze(function JSC() {
 
 // Process each claim.
 
-        all_claims.forEach(function (a_claim) {
+        the_claims.forEach(function (a_claim) {
             let at_most = nr_trials * 10;
             let case_nr = 0;
             let attempt_nr = 0;
@@ -629,8 +637,8 @@ export default Object.freeze(function JSC() {
 
 // Otherwise, start the timer.
 
-        } else if (time_limit > 0) {
-            timeout_id = setTimeout(finish, time_limit);
+        } else if (the_configuration.time_limit !== undefined) {
+            timeout_id = setTimeout(finish, the_configuration.time_limit);
         }
     }
 
@@ -649,7 +657,6 @@ export default Object.freeze(function JSC() {
 
 // A function will be deposited in the set of all claims.
 
-        let group = current_group;
         if (!Array.isArray(signature)) {
             signature = [signature];
         }
@@ -688,7 +695,6 @@ export default Object.freeze(function JSC() {
                 claim: the_claim,
                 classification,
                 classifier,
-                group,
                 name,
                 predicate,
                 serial,
@@ -721,33 +727,6 @@ export default Object.freeze(function JSC() {
         wun_of,
         sequence,
         string,
-
-// The Configurators.
-
-        detail: function (level) {
-            detail = level;
-        },
-        group: function (name = "") {
-            current_group = name;
-        },
-        on_fail: function (func) {
-            on_fail = func;
-        },
-        on_lost: function (func) {
-            on_lost = func;
-        },
-        on_pass: function (func) {
-            on_pass = func;
-        },
-        on_report: function (func) {
-            on_report = func;
-        },
-        on_result: function (func) {
-            on_result = func;
-        },
-        nr_trials: function (number = 100) {
-            nr_trials = number;
-        },
 
 // The Main Functions.
 
