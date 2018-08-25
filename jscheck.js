@@ -492,21 +492,16 @@ const reject = Object.freeze({});
 // stateful, so they are created in here. I am freezing the constructor because
 // I enjoy freezing things.
 
-export default Object.freeze(function JSC() {
-    let the_configuration;
+export default Object.freeze(function jsc_constructor() {
     let all_claims = [];
-    let unique;             // Case serial number
-
-    let jsc;
 
     function check(configuration) {
-        the_configuration = configuration;
         let the_claims = all_claims;
         all_claims = [];
         let nr_trials = (
-            the_configuration.nr_trials === undefined
+            configuration.nr_trials === undefined
             ? 100
-            : the_configuration.nr_trials
+            : configuration.nr_trials
         );
 
         function go(on, report) {
@@ -514,7 +509,7 @@ export default Object.freeze(function JSC() {
 // Invoke a callback function.
 
             try {
-                return the_configuration[on](report);
+                return configuration[on](report);
             } catch (ignore) {}
         }
 
@@ -537,9 +532,9 @@ export default Object.freeze(function JSC() {
                 report
             } = crunch(
                 (
-                    the_configuration.detail === undefined
+                    configuration.detail === undefined
                     ? 3
-                    : the_configuration.detail
+                    : configuration.detail
                 ),
                 cases,
                 serials
@@ -596,8 +591,8 @@ export default Object.freeze(function JSC() {
                         go("on_fail", the_case);
                     }
 
-// This case is no longer pending. If all of the cases have been generated and
-// given results, then generate the result.
+// This case is no longer pending.
+// If all of the cases have been generated and given results, then finish.
 
                     nr_pending -= 1;
                     if (nr_pending <= 0 && all_started) {
@@ -607,7 +602,7 @@ export default Object.freeze(function JSC() {
             }
             return value;
         }
-        unique = 0;
+        let unique = 0;
 
 // Process each claim.
 
@@ -619,8 +614,9 @@ export default Object.freeze(function JSC() {
 // Loop over the generation and testing of cases.
 
             while (case_nr < nr_trials && attempt_nr < at_most) {
-                if (a_claim(register) !== reject) {
+                if (a_claim(register, unique) !== reject) {
                     case_nr += 1;
+                    unique += 1;
                 }
                 attempt_nr += 1;
             }
@@ -637,8 +633,8 @@ export default Object.freeze(function JSC() {
 
 // Otherwise, start the timer.
 
-        } else if (the_configuration.time_limit !== undefined) {
-            timeout_id = setTimeout(finish, the_configuration.time_limit);
+        } else if (configuration.time_limit !== undefined) {
+            timeout_id = setTimeout(finish, configuration.time_limit);
         }
     }
 
@@ -661,11 +657,9 @@ export default Object.freeze(function JSC() {
             signature = [signature];
         }
 
-        function the_claim(register) {
+        function the_claim(register, serial) {
             let args = signature.map(resolve);
             let classification = "";
-            let serial;
-            let verdict;
 
 // If a classifier function was provided, then use it to obtain a
 // classification. If the classification is not a string, then reject the case.
@@ -677,14 +671,9 @@ export default Object.freeze(function JSC() {
                 }
             }
 
-// Create a unique serial number for this trial.
-
-            unique += 1;
-            serial = unique;
-
 // Create a verdict function that wraps the register function.
 
-            verdict = function (result) {
+            let verdict = function (result) {
                 return register(serial, result);
             };
 
@@ -711,7 +700,7 @@ export default Object.freeze(function JSC() {
         all_claims.push(the_claim);
     }
 
-    jsc = Object.freeze({
+    return Object.freeze({
 
 // The Specifiers.
 
@@ -733,6 +722,5 @@ export default Object.freeze(function JSC() {
         check,
         claim
     });
-    return jsc;
 });
 
