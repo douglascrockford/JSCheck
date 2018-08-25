@@ -125,7 +125,7 @@ cases generated per claimn.</p>
    <li><i>none</i>: There will be no report.</li>
     <li> <i>terse</i>: There will be a minimal report, showing the pass score of each claim.</li>
     <li> <i>failures</i>: The individual cases that fail will be reported.</li>
-    <li> <i>qualification</i>: The qualification summaries of the failing cases will also be reported.</li>
+    <li> <i>classification</i>: The classification summaries will also be reported.</li>
     <li> <i>verbose</i>: All cases will be reported.</li></ol>
     <p><code>on_fail: </code>Callback for failing cases. Your <code>on_fail</code> function will be given for each failed case an object containing these properties:</p>
 <ul>
@@ -165,7 +165,7 @@ cases generated per claimn.</p>
 </ul>
 
     <p><code>on_report: </code>Callback for the detailed report. Your <code>on_report</code> function will be given a string containing the results for all of the claims.</p>
-    <p><code>on_result: </code>Callback for the the summary. Your <code>on_result</code> function will be given an <i>object</i> summarizing the check, containing these properties:</p>
+    <p><code>on_result: </code>Callback for the the summary. Your <code>on_result</code> function will be given an object summarizing the check, containing these properties:</p>
 <ul>
     <li><code>pass:</code> The number of cases that passed.</li>
     <li><code>fail:</code> The number of cases that failed.</li>
@@ -471,6 +471,6 @@ jsc.check({
 gt pass 0 fail 22
 lt pass 71
 </pre>
-<p>The predicate failed because 22 of the generated cases had an <code>a</code> that was larger than <code>b</code>. This is because <code>jsc.integer(10)</code> produces from the range 1 to 10, and <code>jsc.integer(20)</code> produces from the range 1 to 20. Sometimes the first value will be larger. This tells us that we should make the predicate more sophisticated, or we could have the classifier return <code>undefined</code> instead of <code>"gt"</code> to reject those cases.</p>
+<p>The predicate failed because 22 of the generated cases had an <code>a</code> that was larger than <code>b</code>. This is because <code>jsc.integer(10)</code> produces from the range 0 to 9, and <code>jsc.integer(20)</code> produces from the range 0 to 19. Sometimes the first value will be larger. This tells us that we should make the predicate more sophisticated, or we could have the classifier return <code>undefined</code> instead of <code>"gt"</code> to reject those cases.</p>
 </body>
 </html>
