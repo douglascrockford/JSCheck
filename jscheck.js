@@ -1,6 +1,6 @@
 // jscheck.js
 // Douglas Crockford
-// 2018-08-24
+// 2018-09-05
 
 // Public Domain
 
@@ -12,18 +12,17 @@
     E, EPSILON, PI, any, args, array, boolean, cases, charCodeAt, character,
     check, claim, class, classification, classifier, codePointAt, concat,
     detail, fail, falsy, fill, findIndex, floor, forEach, freeze, fromCodePoint,
-    group, integer, isArray, isSafeInteger, join, key, keys, length, literal,
-    losses, lost, map, name, nr_trials, number, object, ok, on_fail, on_lost,
-    on_pass, on_report, on_result, pass, predicate, push, random, reduce,
-    replace, report, sequence, serial, signature, sort, split, string,
-    stringify, summary, time_limit, total, type, verdict, wun_of
+    integer, isArray, isSafeInteger, join, key, keys, length, literal, losses,
+    lost, map, name, nr_trials, number, object, ok, pass, predicate, push,
+    random, reduce, replace, report, sequence, serial, signature, sort, split,
+    string, stringify, summary, time_limit, total, type, verdict, wun_of
 */
 
 import fulfill from "./fulfill.js";
 
 function resolve(value, ...rest) {
 
-// The resolve function takes a value. If that value is a function, then it is
+// The 'resolve' function takes a value. If that value is a function, then it is
 // called to produce the return value. Otherwise, the value is the return value.
 
     return (
@@ -65,15 +64,15 @@ function number(from = 1, to = 0) {
 
 function wun_of(array, weights) {
 
-// The wun_of specifier has two signatures.
+// The 'wun_of' specifier has two signatures.
 
-//  wun_of(array)
-//      Wun element is taken from the array and resolved.
-//      The elements are selected randomly with equal probabilities.
+//.  wun_of(array)
+//.      Wun element is taken from the array and resolved.
+//.      The elements are selected randomly with equal probabilities.
 
-// wun_of(array, weights)
-//      The two arguments are both arrays with equal lengths.
-//      The larger a weight, the more likely an element will be selected.
+//. wun_of(array, weights)
+//.      The two arguments are both arrays with equal lengths.
+//.      The larger a weight, the more likely an element will be selected.
 
     if (
         !Array.isArray(array)
@@ -484,11 +483,11 @@ function crunch(detail, cases, serials) {
     }};
 }
 
-// The reject value is used to identify trials that should be rejected.
+// The 'reject' value is used to identify trials that should be rejected.
 
 const reject = Object.freeze({});
 
-// We export a jsc constructor function. The 'check' and 'claim' functions are
+// We export a 'jsc_constructor' function. The 'check' and 'claim' functions are
 // stateful, so they are created in here. I am freezing the constructor because
 // I enjoy freezing things.
 
@@ -514,7 +513,7 @@ export default Object.freeze(function jsc_constructor() {
         }
 
 // The check function checks all claims.
-// The results will be provided to callback functions.
+// The results are provided to callback functions.
 
         let cases = {};
         let all_started = false;
@@ -640,18 +639,7 @@ export default Object.freeze(function jsc_constructor() {
 
     function claim(name, predicate, signature, classifier) {
 
-// A claim consists of
-//      A descriptive name that is displayed in the report.
-//      A predicate function that exercises the claim, and that will return true
-//          if the claim holds.
-//      A function signature array that specifies the types and values for the
-//          predicate function.
-//      An optional classifier function that takes values produced by the
-//          signature and that returns a string for classifying the trials,
-//          or false if the predicate should not be given this set of generated
-//          arguments.
-
-// A function will be deposited in the set of all claims.
+// A function is deposited in the set of all claims.
 
         if (!Array.isArray(signature)) {
             signature = [signature];
@@ -666,7 +654,7 @@ export default Object.freeze(function jsc_constructor() {
 
             if (classifier !== undefined) {
                 classification = classifier(...args);
-                if (classification === undefined) {
+                if (typeof classification !== "string") {
                     return reject;
                 }
             }
@@ -691,7 +679,7 @@ export default Object.freeze(function jsc_constructor() {
                 verdict
             });
 
-// Call the predicate, giving it the verdict function and all of the case's
+// Call the predicate, giving it the verdict function and all of the case
 // arguments. The predicate must use the verdict callback to signal the result
 // of the case.
 
@@ -702,7 +690,7 @@ export default Object.freeze(function jsc_constructor() {
 
     return Object.freeze({
 
-// The Specifiers.
+// The Specifiers:
 
         any,
         array,
@@ -717,7 +705,7 @@ export default Object.freeze(function jsc_constructor() {
         sequence,
         string,
 
-// The Main Functions.
+// The Main Functions:
 
         check,
         claim
