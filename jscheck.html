@@ -87,7 +87,7 @@ let jsc = JSCheck();</pre>
 <h2>Making a Claim</h2>
 <p><b>JSCheck</b> is concerned with the specification and checking of <i>claims</i>. (QuickCheck called these <em>properties</em>. We use the term <i>claim</i> instead of <i>property</i> to avoid confusion with JavaScript's use of <i>property</i> to mean a member of an object.) </p>
 <p><code>jsc.claim</code> files a claim function that will later be tested by the <code>jsc.check</code> function, which will randomly generate the cases that will attempt to disprove the filed claims. You can set the number of
-cases generated per claimn.</p>
+cases generated per claim.</p>
 <p>To make a claim, you pass three or four components to <code>jsc.claim(<strong>name</strong>, <strong>predicate</strong>, <strong>signature</strong>, <strong>classifier</strong>)</code>.</p>
 <h4>name</h4>
 <p>The name is descriptive text that will be used in making the report.</p>
@@ -261,6 +261,16 @@ The classifications can be counted and displayed in the report when the <code>de
 <h4>
     jsc.character(<i>min_character</i>, <i>max_character</i>)</h4>
 <p>The <code>character</code> specifier generates characters within a given range.</p>
+<h4>
+    jsc.character(<i>string</i>)</h4>
+<p>The <code>character</code> specifier takes a string, and selects one of its characters. So for example,</p>
+<pre>jsc.string(8, jsc.character(&quot;abcdefgABCDEFG_$&quot;))</pre>
+<p>produces values like</p>
+<pre>"cdgbdB_D"
+"$fGE_BAB"
+"gEFF_FAe"
+"AebGbAbd"
+...</pre>
 <h4>jsc.falsy()</h4>
 <p>The <code>falsy</code> specifier generates falsy values: <code>false</code>, <code>null</code>, <code>undefined</code>, <code>""</code>, <code>0</code>, and <code>NaN</code>.</p>
 <h4>
@@ -353,16 +363,6 @@ produces values like
 10
 6
 10
-...</pre>
-<h4>
-    jsc.wun_of(<i>string</i>)</h4>
-<p>The <code>wun_of</code> specifier takes a string, and selects one of its characters. So for example,</p>
-<pre>jsc.string(8, jsc.wun_of(&quot;abcdefgABCDEFG_$&quot;))</pre>
-<p>produces values like</p>
-<pre>"cdgbdB_D"
-"$fGE_BAB"
-"gEFF_FAe"
-"AebGbAbd"
 ...</pre>
 <h4>jsc.sequence(<i>array</i>)</h4>
 <p>The <code>sequence</code> specifier takes an <i>array</i> of values, and produces them in sequence, repeating the sequence as needed. So for example,</p>
