@@ -78,14 +78,14 @@ p {
 <body>
 <h1>JSCheck</h1>
 <p>Douglas Crockford<br>
-    2019-05-12
+    2019-05-13
 </p>
 <p><b>JSCheck</b> is a testing tool for JavaScript. It was inspired by <a href="http://en.wikipedia.org/wiki/QuickCheck">QuickCheck</a>, a testing tool for Haskell developed by Koen Claessen and John Hughes of Chalmers University of Technology.</p>
 <p><b>JSCheck</b> is a specification-driven testing tool. From a description of the properties of a system, function, or object, it will generate random test cases attempting to disprove those properties, and then report its findings. That can be especially effective in managing the evolution of a program because it can show the conformance of new code to old code. It also provides an interesting level of self-documentation, because the executable specifications it relies on can provide a good view of the workings of a program.</p>
 <p>The <b>JSCheck</b> module is loaded from the <code><b>jscheck</b>.js</code> file. It produces a single function that is used to construct a <code>jsc</code> object.</p>
 <pre>import JSCheck from &quot;./jscheck.js&quot;;
 let jsc = JSCheck();</pre>
-<p>The source is available at  <a href="https://github.com/douglascrockford/JSCheck">https://github.com/douglascrockford/jscheck</a>. This page is available at <a href="http://www.JSCheck.org/">http://www.jscheck.org/</a>.</p>
+<p>The source is available at  <a href="https://github.com/douglascrockford/JSCheck">https://github.com/douglascrockford/jscheck</a>. </p>
 <h2>Making a Claim</h2>
 <p><b>JSCheck</b> is concerned with the specification and checking of <i>claims</i>. (QuickCheck called these <em>properties</em>. We use the term <i>claim</i> instead of <i>property</i> to avoid confusion with JavaScript's use of <i>property</i> to mean a member of an object.) </p>
 <p><code>jsc.claim</code> files a claim function that will later be tested by the <code>jsc.check</code> function, which will randomly generate the cases that will attempt to disprove the filed claims. You can set the number of
@@ -478,5 +478,10 @@ gt pass 0 fail 22
 lt pass 71
 </pre>
 <p>The predicate failed because 22 of the generated cases had an <code>a</code> that was larger than <code>b</code>. This is because <code>jsc.integer(10)</code> produces from the range 0 to 9, and <code>jsc.integer(20)</code> produces from the range 0 to 19. Sometimes the first value will be larger. This tells us that we should make the predicate more sophisticated, or we could have the classifier return <code>undefined</code> instead of <code>"gt"</code> to reject those cases.</p>
+<p>See</p>
+<ul>
+    <li><a href="http://howjavascriptworks.com/">How JavaScript Works</a>, Chapter 23</li>
+    <li><a href="https://github.com/douglascrockford/JSCheck">JSCheck on Github</a></li>
+</ul>
 </body>
 </html>
