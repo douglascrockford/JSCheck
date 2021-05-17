@@ -338,7 +338,12 @@ function crunch(detail, cases, serials) {
                         the_case.args,
                         function replacer(ignore, value) {
                             return (
-                                (value === undefined || typeof value === "number")
+                                (
+                                    value === undefined || (
+                                        typeof value === "number" &&
+                                        !Number.isFinite(value)
+                                    )
+                                )
                                 ? String(value)
                                 : (
                                     typeof value === "function"
