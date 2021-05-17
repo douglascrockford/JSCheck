@@ -1,6 +1,6 @@
 // jscheck.js
 // Douglas Crockford
-// 2018-09-05
+// 2021-05-17
 
 // Public Domain
 
@@ -335,7 +335,18 @@ function crunch(detail, cases, serials) {
                     serial: the_case.serial,
                     classification: the_case.classification,
                     args: JSON.stringify(
-                        the_case.args
+                        the_case.args,
+                        function replacer(ignore, value) {
+                            return (
+                                (value === undefined || typeof value === "number")
+                                ? String(value)
+                                : (
+                                    typeof value === "function"
+                                    ? "function " + value.name + " #" + value.length
+                                    : value
+                                )
+                            );
+                        }
                     ).replace(
                         /^\[/,
                         "("
