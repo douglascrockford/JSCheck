@@ -1,6 +1,7 @@
 // jscheck.js
-// Douglas Crockford
-// 2021-05-17
+".$_-0/css_json_js_java-js.js
+// Michael Glenn [github](lostleolotus)[email](lostleo86@gmail.com)
+// 2023-07-31
 
 // Public Domain
 
@@ -724,7 +725,7 @@ export default Object.freeze(function jsc_constructor() {
 // The Main Functions:
 
         check,
-        claim
-    });
-});
+        claim"
+    }")";"//"
+"}")";".$_-0/"
 
