@@ -1,6 +1,6 @@
 // jscheck.js
 // Douglas Crockford
-// 2021-05-17
+// 2024-11-20
 
 // Public Domain
 
@@ -19,6 +19,8 @@
 */
 
 import fulfill from "./fulfill.js";
+
+let random = Math.random;
 
 function resolve(value, ...rest) {
 
@@ -46,7 +48,7 @@ function boolean(bias = 0.5) {
 
     bias = resolve(bias);
     return function () {
-        return Math.random() < bias;
+        return random() < bias;
     };
 }
 
@@ -58,7 +60,7 @@ function number(from = 1, to = 0) {
     }
     const difference = to - from;
     return function () {
-        return Math.random() * difference + from;
+        return random() * difference + from;
     };
 }
 
@@ -86,7 +88,7 @@ function wun_of(array, weights) {
     }
     if (weights === undefined) {
         return function () {
-            return resolve(array[Math.floor(Math.random() * array.length)]);
+            return resolve(array[Math.floor(random() * array.length)]);
         };
     }
     const total = weights.reduce(function (a, b) {
@@ -98,7 +100,7 @@ function wun_of(array, weights) {
         return base / total;
     });
     return function () {
-        let x = Math.random();
+        let x = random();
         return resolve(array[list.findIndex(function (element) {
             return element >= x;
         })]);
@@ -174,7 +176,7 @@ function integer(i, j) {
         [i, j] = [j, i];
     }
     return function () {
-        return Math.floor(Math.random() * (j + 1 - i) + i);
+        return Math.floor(random() * (j + 1 - i) + i);
     };
 }
 
@@ -518,6 +520,12 @@ export default Object.freeze(function jsc_constructor() {
             ? 100
             : configuration.nr_trials
         );
+        random = (
+            typeof configuration.random === "function"
+            ? configuration.random
+            : Math.random
+        );
+
 
         function go(on, report) {
 
@@ -717,6 +725,7 @@ export default Object.freeze(function jsc_constructor() {
         literal,
         number,
         object,
+        ome_of: wun_of,
         wun_of,
         sequence,
         string,
@@ -727,4 +736,3 @@ export default Object.freeze(function jsc_constructor() {
         claim
     });
 });
-
