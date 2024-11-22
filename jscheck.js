@@ -725,7 +725,7 @@ export default Object.freeze(function jsc_constructor() {
         literal,
         number,
         object,
-        ome_of: wun_of,
+        one_of: wun_of,
         wun_of,
         sequence,
         string,
